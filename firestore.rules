@@ -1,8 +1,22 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
-    match /clicks/{document} {
-        allow read, write: if true
-    }
+    match /databases/{database}/documents {
+        // Auth utility functions
+        function isAdmin() {
+            return request.auth.token.role == "admin"
+        }
+        function isOrga() {
+            return request.auth.token.role == "orga"
+        }
+        function isDriver() {
+            return request.auth.token.role == "driver"
+        }
+        function isGuest() {
+            return request.auth.token.role == "guest"
+        }
+
+        match /clicks/{document} {
+            allow read, write: if true
+        }
   }
 }

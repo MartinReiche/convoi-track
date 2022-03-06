@@ -1,7 +1,7 @@
 import {getApps, getApp, initializeApp} from 'firebase/app';
 import {initializeAppCheck, ReCaptchaV3Provider} from 'firebase/app-check';
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 
 export function getFirebase() {
     if (getApps().length === 0) {
@@ -30,16 +30,18 @@ export function getFirebase() {
 
         // init DB
         const db = getFirestore(app);
+        const auth = getAuth(app);
         if (process.env.NODE_ENV === 'development') {
             connectFirestoreEmulator(db, 'localhost', 8080);
+            connectAuthEmulator(auth, "http://localhost:9099");
         }
-
         // return all
-        return { db }
+        return { db, auth }
     } else {
         const app = getApp();
         const db = getFirestore(app);
-        return { db };
+        const auth = getAuth(app);
+        return { db, auth };
     }
 }
 
