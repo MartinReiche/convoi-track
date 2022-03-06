@@ -24,3 +24,6 @@ yarn-error.log*
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
 /.env
+/firestore-debug.log
+/pubsub-debug.log
+/ui-debug.log
