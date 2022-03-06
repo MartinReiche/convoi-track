@@ -1,15 +1,20 @@
 import * as React from 'react';
 import GoogleMapReact from 'google-map-react';
+import './index.css';
+
+const DEFAULT_LAT = 52.5200;
+const DEFAULT_LNG = 13.4050;
+const DEFAULT_ZOOM = 8;
 
 const Map = () => {
-    const [center, setCenter] = React.useState({ lat: 52.5200 , lng: 13.4050 })
-    const [zoom, setZoom] = React.useState(7);
+    const [center, setCenter] = React.useState({ lat: DEFAULT_LAT , lng: DEFAULT_LNG })
+    const [zoom, setZoom] = React.useState(DEFAULT_ZOOM);
 
     React.useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
-                console.log("Latitude is :", position.coords.latitude);
-                console.log("Longitude is :", position.coords.longitude);
+                setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+                setZoom(12);
             });
         } else {
             console.log("Geolocation Not Available");
@@ -22,13 +27,14 @@ const Map = () => {
 
     return (
         // Important! Always set the container height explicitly
-        <div style={{height: '100vh', width: '100%'}}>
+        <div className="mapContainer">
             <GoogleMapReact
                 bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}}
-                defaultCenter={center}
-                defaultZoom={zoom}
+                defaultCenter={{ lat: DEFAULT_LAT, lng: DEFAULT_LNG }}
+                defaultZoom={DEFAULT_ZOOM}
                 yesIWantToUseGoogleMapApiInternals
                 onGoogleApiLoaded={({map, maps}) => handleApiLoaded(map, maps)}
+
             >
                 {/*                <AnyReactComponent
                     lat={59.955413}
