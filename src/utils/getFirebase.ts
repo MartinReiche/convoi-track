@@ -1,5 +1,7 @@
 import {getApps, getApp, initializeApp} from 'firebase/app';
 import {initializeAppCheck, ReCaptchaV3Provider} from 'firebase/app-check';
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+
 
 export function getFirebase() {
     if (getApps().length === 0) {
@@ -22,12 +24,22 @@ export function getFirebase() {
         }
 
         initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider(process.env.GATSBY_FIREBASE_RECAPTCHA_KEY as string),
+            provider: new ReCaptchaV3Provider(process.env.REACT_APP_FIREBASE_RECAPTCHA_KEY as string),
             isTokenAutoRefreshEnabled: true
         });
-        return app;
+
+        // init DB
+        const db = getFirestore(app);
+        if (process.env.NODE_ENV === 'development') {
+            connectFirestoreEmulator(db, 'localhost', 8080);
+        }
+
+        // return all
+        return { db }
     } else {
-        return getApp();
+        const app = getApp();
+        const db = getFirestore(app);
+        return { db };
     }
 }
 
