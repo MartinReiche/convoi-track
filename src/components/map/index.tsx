@@ -23,6 +23,10 @@ const Map = () => {
 
     const handleApiLoaded = (map: any, maps: any) => {
         console.log('Maps API Loaded');
+        console.log('Current zoom:', zoom);
+        console.log('current center:', center);
+        console.log(map)
+        console.log(maps)
     }
 
     return (
