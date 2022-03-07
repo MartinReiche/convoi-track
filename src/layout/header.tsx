@@ -6,9 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import {getFirebase} from "../utils/getFirebase";
 import {collection, addDoc} from "firebase/firestore";
-
 import { ReactComponent as LogoText } from '../logos/logo_long.svg';
-import './header.css';
 
 export default function Header() {
 

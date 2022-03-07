@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-export const addAdminUser = functions.firestore
-    .document("admins/{id}")
+export const addDriverUser = functions.firestore
+    .document("drivers/{id}")
     .onCreate(async (snap) => {
       try {
         // get admin record from firestore
@@ -18,7 +18,7 @@ export const addAdminUser = functions.firestore
             });
         if (!user) return null;
         // set custom user claim 'role' to admin
-        await admin.auth().setCustomUserClaims(user.uid, {role: "admin"});
+        await admin.auth().setCustomUserClaims(user.uid, {role: "orga"});
         return null;
       } catch (error) {
         console.error(error);
@@ -26,8 +26,8 @@ export const addAdminUser = functions.firestore
       }
     });
 
-export const removeAdminUser = functions.firestore
-    .document("admins/{id}")
+export const removeDriverUser = functions.firestore
+    .document("drivers/{id}")
     .onDelete(async (snap) => {
       try {
         // get admin record from firestore

@@ -8,13 +8,24 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './index.css';
+import Box from "@mui/material/Box";
 
 const Layout: React.FC = ({children}) => (
     <ThemeProvider theme={darkTheme}>
         <CssBaseline/>
         <div className="container">
-            <Header />
-            {children}
+            <Header/>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                height: {
+                    xs: 'calc(100vh - 56px)',
+                    sm: 'calc(100vh - 64px)',
+                }
+            }}>
+                {children}
+            </Box>
         </div>
     </ThemeProvider>
 )

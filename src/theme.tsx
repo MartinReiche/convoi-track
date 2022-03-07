@@ -7,7 +7,7 @@ export const darkTheme = createTheme({
             main: '#242b38',
         },
         secondary: {
-            main: '#f50057',
+            main: '#37ab9c',
         },
     },
 });
