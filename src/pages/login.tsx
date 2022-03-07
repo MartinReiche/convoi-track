@@ -1,7 +1,5 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-
 import {useFormik} from 'formik';
 import * as yup from 'yup';
 import Button from '@mui/material/Button';
@@ -11,6 +9,7 @@ import {Container} from "@mui/material";
 import getFirebase from "../utils/getFirebase";
 import {signInWithEmailAndPassword} from "firebase/auth";
 import Loading from "../components/loading";
+import {ReactComponent as Logo} from '../logos/logo_quad.svg';
 
 const validationSchema = yup.object({
     email: yup
@@ -22,8 +21,10 @@ const validationSchema = yup.object({
         .required('Password is required'),
 });
 
+
 export default function Login() {
     const [submitting, setSubmitting] = React.useState(false);
+
     const formik = useFormik({
         initialValues: {
             email: '',
@@ -63,19 +64,13 @@ export default function Login() {
                 width: '100%',
                 alignItems: 'center',
                 justifyContent: 'center',
-                pt: 20
+                pt: 10
             }}>
                 <Container maxWidth={"xs"}>
-                    <Typography
-                        variant="h2"
-                        component="h1"
-                        gutterBottom
-                        sx={{textAlign: 'center', fontWeight: 'bold'}}
-                        color="secondary"
-                    >
-                        Login
-                    </Typography>
                     <Grid container direction="column" component="form" onSubmit={formik.handleSubmit}>
+                        <Grid item sx={{ p: 8}}>
+                            <Logo width="100%" height="100%"/>
+                        </Grid>
                         <Grid item>
                             <TextField
                                 fullWidth
@@ -86,7 +81,7 @@ export default function Login() {
                                 value={formik.values.email}
                                 onChange={formik.handleChange}
                                 error={formik.touched.email && Boolean(formik.errors.email)}
-                                helperText={formik.touched.email && (formik.errors.email || ' ')}
+                                helperText={formik.touched.email && formik.errors.email ? formik.errors.email : ' '}
                                 color="secondary"
                             />
                         </Grid>
@@ -100,7 +95,10 @@ export default function Login() {
                                 value={formik.values.password}
                                 onChange={formik.handleChange}
                                 error={formik.touched.password && Boolean(formik.errors.password)}
-                                helperText={formik.touched.password && (formik.errors.password || ' ')}
+                                helperText={
+                                    formik.touched.password && formik.errors.password ? formik.errors.password : ' '
+                                }
+                                color="secondary"
                             />
                         </Grid>
                         <Grid item sx={{padding: 2, justifyContent: 'center', display: 'flex'}}>
