@@ -28,12 +28,12 @@ export function getFirebase() {
             isTokenAutoRefreshEnabled: true
         });
 
-        // init DB
+        // init DB, Auth
         const db = getFirestore(app);
         const auth = getAuth(app);
         if (process.env.NODE_ENV === 'development') {
             connectFirestoreEmulator(db, 'localhost', 8080);
-            connectAuthEmulator(auth, "http://localhost:9099");
+            connectAuthEmulator(auth, "http://localhost:9099/");
         }
         // return all
         return { db, auth }
@@ -43,6 +43,7 @@ export function getFirebase() {
         const auth = getAuth(app);
         return { db, auth };
     }
+
 }
 
 export default getFirebase;

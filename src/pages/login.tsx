@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
 import {Container} from "@mui/material";
 import getFirebase from "../utils/getFirebase";
-import {signInWithEmailAndPassword} from "firebase/auth";
+import {sendSignInLinkToEmail} from "firebase/auth";
 import Loading from "../components/loading";
 import {ReactComponent as Logo} from '../logos/logo_quad.svg';
 
@@ -35,7 +35,25 @@ export default function Login() {
             const {auth} = getFirebase();
             setSubmitting(true)
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+
+                const actionCodeSettings = {
+                    url: "http://localhost:3000/",
+                    handleCodeInApp: true,
+                };
+
+                sendSignInLinkToEmail(auth, email, actionCodeSettings)
+                    .then(() => {
+                        // The link was successfully sent. Inform the user.
+                        // Save the email locally so you don't need to ask the user for it again
+                        // if they open the link on the same device.
+                        // window.localStorage.setItem('emailForSignIn', email);
+                        // ...
+                        console.log('SignInLink sent');
+                    })
+                    .catch((error) => {
+                        console.log(error.message);
+                    });
+
                 setSubmitting(false);
             } catch (e: any) {
                 setSubmitting(false);
@@ -85,25 +103,9 @@ export default function Login() {
                                 color="secondary"
                             />
                         </Grid>
-                        <Grid item>
-                            <TextField
-                                fullWidth
-                                id="password"
-                                name="password"
-                                label="Password"
-                                type="password"
-                                value={formik.values.password}
-                                onChange={formik.handleChange}
-                                error={formik.touched.password && Boolean(formik.errors.password)}
-                                helperText={
-                                    formik.touched.password && formik.errors.password ? formik.errors.password : ' '
-                                }
-                                color="secondary"
-                            />
-                        </Grid>
                         <Grid item sx={{padding: 2, justifyContent: 'center', display: 'flex'}}>
                             <Button color="secondary" variant="contained" type="submit" disabled={submitting}>
-                                Login
+                                Send Login Link
                             </Button>
                         </Grid>
                     </Grid>

@@ -19,6 +19,25 @@ export const addOrgaUser = functions.firestore
         if (!user) return null;
         // set custom user claim 'role' to admin
         await admin.auth().setCustomUserClaims(user.uid, {role: "orga"});
+
+        const actionCodeSettings = {
+          url: "http://localhost:3000/linklogin/",
+          handleCodeInApp: true,
+        };
+
+        admin.auth()
+            .generateSignInWithEmailLink(userRecord.email, actionCodeSettings)
+            .then((link) => {
+              // Construct sign-in with email link template, embed the link and
+              // send using custom SMTP server.
+              // return sendSignInEmail(usremail, displayName, link);
+              console.log(link);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+
+
         return null;
       } catch (error) {
         console.error(error);

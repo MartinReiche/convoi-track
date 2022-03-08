@@ -43,7 +43,6 @@ function RequireAuth({children, roles}: { children: JSX.Element, roles: string[]
     if (user.loading) return <Loading open={true} />;
     // redirect to login screen
     if (!user.isAuthenticated || !roles.includes(user.role)) {
-        console.log(location)
         return <Navigate to="/login" state={{from: location}} replace/>;
     }
     // let user pass
