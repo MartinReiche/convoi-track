@@ -1,7 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-export const addOrgaUser = functions.firestore
+export const addOrgaUser = functions
+    .region("europe-west1")
+    .firestore
     .document("orga/{id}")
     .onCreate(async (snap) => {
       try {
@@ -21,7 +23,7 @@ export const addOrgaUser = functions.firestore
         await admin.auth().setCustomUserClaims(user.uid, {role: "orga"});
 
         const actionCodeSettings = {
-          url: "http://localhost:3000/linklogin/",
+          url: "http://localhost:3000/",
           handleCodeInApp: true,
         };
 
@@ -45,7 +47,9 @@ export const addOrgaUser = functions.firestore
       }
     });
 
-export const removeOrgaUser = functions.firestore
+export const removeOrgaUser = functions
+    .region("europe-west1")
+    .firestore
     .document("orga/{id}")
     .onDelete(async (snap) => {
       try {

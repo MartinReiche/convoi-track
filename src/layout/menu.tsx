@@ -3,10 +3,10 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import getFirebase from "../utils/getFirebase";
-import {signOut} from 'firebase/auth'
+import {useAuth} from "../components/auth/authProvider";
 
 export function Home() {
+    const {signout} = useAuth();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -18,8 +18,7 @@ export function Home() {
     };
     const handleLogoutClicked =() => {
         setAnchorEl(null);
-        const {auth} = getFirebase();
-        signOut(auth);
+        signout();
     }
     return (
         <React.Fragment>

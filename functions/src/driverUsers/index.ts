@@ -1,7 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-export const addDriverUser = functions.firestore
+export const addDriverUser = functions
+    .region("europe-west1")
+    .firestore
     .document("drivers/{id}")
     .onCreate(async (snap) => {
       try {
@@ -26,7 +28,9 @@ export const addDriverUser = functions.firestore
       }
     });
 
-export const removeDriverUser = functions.firestore
+export const removeDriverUser = functions
+    .region("europe-west1")
+    .firestore
     .document("drivers/{id}")
     .onDelete(async (snap) => {
       try {

@@ -24,5 +24,11 @@ service cloud.firestore {
                 && request.resource.data.email is string
             allow delete: if isAdmin()
         }
+        match /loginRequests/{documentId} {
+                    allow create: if true
+                        && request.resource.data.keys().hasOnly(['email'])
+                        && request.resource.data.email is string
+                    allow get: if true
+                }
   }
 }

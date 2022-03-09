@@ -1,7 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-export const addAdminUser = functions.firestore
+export const addAdminUser = functions
+    .region("europe-west1")
+    .firestore
     .document("admins/{id}")
     .onCreate(async (snap) => {
       try {
@@ -26,7 +28,9 @@ export const addAdminUser = functions.firestore
       }
     });
 
-export const removeAdminUser = functions.firestore
+export const removeAdminUser = functions
+    .region("europe-west1")
+    .firestore
     .document("admins/{id}")
     .onDelete(async (snap) => {
       try {

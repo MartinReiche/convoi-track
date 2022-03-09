@@ -5,112 +5,133 @@ import * as yup from 'yup';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid";
-import {Container} from "@mui/material";
+import Container from '@mui/material/Container';
 import getFirebase from "../utils/getFirebase";
-import {sendSignInLinkToEmail} from "firebase/auth";
 import Loading from "../components/loading";
 import {ReactComponent as Logo} from '../logos/logo_quad.svg';
+import {addDoc, collection, doc, onSnapshot} from 'firebase/firestore';
+import {useAuth} from "../components/auth/authProvider";
+import ErrorIcon from '@mui/icons-material/Error';
+import SuccessIcon from '@mui/icons-material/CheckCircle';
+import Typography from "@mui/material/Typography";
 
 const validationSchema = yup.object({
     email: yup
         .string()
         .email('Enter a valid email')
         .required('Email is required'),
-    password: yup
-        .string()
-        .required('Password is required'),
 });
 
-
 export default function Login() {
-    const [submitting, setSubmitting] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const [requestId, setRequestId] = React.useState<string | null>(null);
+    const [error, setError] = React.useState(false);
+    const [message, setMessage] = React.useState<boolean | string>(false);
+    const {user} = useAuth();
 
     const formik = useFormik({
         initialValues: {
             email: '',
-            password: '',
         },
         validationSchema: validationSchema,
-        onSubmit: async ({email, password}, {setFieldError, setFieldValue}) => {
-            const {auth} = getFirebase();
-            setSubmitting(true)
+        onSubmit: async ({email}) => {
+            const {db} = getFirebase();
+            setLoading(true)
             try {
-
-                const actionCodeSettings = {
-                    url: "http://localhost:3000/",
-                    handleCodeInApp: true,
-                };
-
-                sendSignInLinkToEmail(auth, email, actionCodeSettings)
-                    .then(() => {
-                        // The link was successfully sent. Inform the user.
-                        // Save the email locally so you don't need to ask the user for it again
-                        // if they open the link on the same device.
-                        // window.localStorage.setItem('emailForSignIn', email);
-                        // ...
-                        console.log('SignInLink sent');
-                    })
-                    .catch((error) => {
-                        console.log(error.message);
-                    });
-
-                setSubmitting(false);
+                const loginRequest = await addDoc(collection(db, 'loginRequests'), {email});
+                setRequestId(loginRequest.id);
+                window.localStorage.setItem('emailForSignIn', email);
             } catch (e: any) {
-                setSubmitting(false);
-                switch (e.message) {
-                    case 'Firebase: Error (auth/wrong-password).':
-                        setFieldError('password', 'Wrong Password');
-                        setFieldValue('password', '', false);
-                        break;
-                    case 'Firebase: Error (auth/user-not-found).':
-                        setFieldError('email', 'This user does not exist');
-                        setFieldValue('password', '', false);
-                        break;
-                    default:
-                        setFieldError('email', 'Wrong login credentials');
-                        setFieldValue('password', '', false);
-                }
+                setLoading(false);
+                setError(true);
+                setMessage("Something went wrong. Please try again later.");
             }
         },
     });
 
+    React.useEffect(() => {
+        if (requestId) {
+            const {db} = getFirebase();
+            const unsubscribe = onSnapshot(doc(db, 'loginRequests', requestId), doc => {
+                if (doc.exists() && doc.data().success) {
+                    setLoading(false);
+                    setMessage('A sign-in link has been sent to the provided email address.')
+                } else if (doc.exists() && doc.data().error) {
+                    formik.setErrors({email: doc.data().error});
+                    window.localStorage.removeItem('emailForSignIn');
+                    setLoading(false);
+                }
+            });
+            return function cleanUp() {
+                unsubscribe();
+            }
+        }
+    }, [requestId, formik])
+
+
     return (
         <React.Fragment>
-            <Loading open={submitting}/>
-            <Box sx={{
-                display: 'flex',
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pt: 10
-            }}>
+            <Loading open={loading || user.loading}/>
                 <Container maxWidth={"xs"}>
-                    <Grid container direction="column" component="form" onSubmit={formik.handleSubmit}>
-                        <Grid item sx={{ p: 8}}>
-                            <Logo width="100%" height="100%"/>
+                    <Grid
+                        container
+                        direction="column"
+                        component="form"
+                        onSubmit={formik.handleSubmit}
+                        sx={{ pt: 12 }}
+                    >
+                        <Grid item sx={{display: 'flex', justifyContent: 'center'}}>
+                            <Box sx={{maxWidth: '250px', mb: 8}}>
+                                <Logo width="100%" height="100%"/>
+                            </Box>
                         </Grid>
-                        <Grid item>
-                            <TextField
-                                fullWidth
-                                id="email"
-                                name="email"
-                                label="Email"
-                                variant="outlined"
-                                value={formik.values.email}
-                                onChange={formik.handleChange}
-                                error={formik.touched.email && Boolean(formik.errors.email)}
-                                helperText={formik.touched.email && formik.errors.email ? formik.errors.email : ' '}
-                                color="secondary"
-                            />
-                        </Grid>
-                        <Grid item sx={{padding: 2, justifyContent: 'center', display: 'flex'}}>
-                            <Button color="secondary" variant="contained" type="submit" disabled={submitting}>
-                                Send Login Link
-                            </Button>
-                        </Grid>
+                        {message ? (
+                            <Grid item>
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    {error ? (
+                                        <React.Fragment>
+                                            <ErrorIcon color="error" sx={{fontSize: '3em', mr: 2}}/>
+                                            <Typography color="error">
+                                                {message}
+                                            </Typography>
+                                        </React.Fragment>
+                                    ) : (
+                                        <React.Fragment>
+                                            <SuccessIcon color="secondary" sx={{fontSize: '3em', mr: 2}}/>
+                                            <Typography color="secondary">
+                                                {message}
+                                            </Typography>
+                                        </React.Fragment>
+                                    )}
+                                </Box>
+                            </Grid>
+                        ) : (
+                            <React.Fragment>
+                                <Grid item>
+                                    <TextField
+                                        fullWidth
+                                        id="email"
+                                        name="email"
+                                        label="Email"
+                                        variant="outlined"
+                                        value={formik.values.email}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.email && Boolean(formik.errors.email)}
+                                        helperText={
+                                            formik.touched.email && formik.errors.email ? formik.errors.email : ' '
+                                        }
+                                        color="secondary"
+                                    />
+                                </Grid>
+                                <Grid item sx={{mt: 5, justifyContent: 'center', display: 'flex'}}>
+                                    <Button color="secondary" variant="contained" type="submit" disabled={loading}>
+                                        Send Login Link
+                                    </Button>
+                                </Grid>
+                            </React.Fragment>
+                        )}
                     </Grid>
                 </Container>
-            </Box>
         </React.Fragment>
     )
 }
