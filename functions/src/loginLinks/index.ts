@@ -30,6 +30,7 @@ export const onLoginRequest = functions
             console.log("Update ");
             await admin.firestore().collection("loginRequests").doc(snap.id).update({
               email: admin.firestore.FieldValue.delete(),
+              host: admin.firestore.FieldValue.delete(),
               success: false,
               error: error.message,
             });

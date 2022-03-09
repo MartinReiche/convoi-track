@@ -4,7 +4,7 @@ import Loading from "../loading";
 import {useAuth} from "../auth/authProvider";
 import getFirebase from "../../utils/getFirebase";
 import {isSignInWithEmailLink} from "firebase/auth";
-import ConfirmLogin from "../../pages/confirmLogin";
+import ConfirmLogin from "../auth/confirmLogin";
 import RequireUnauth from "./requireUnauth";
 
 function RequireAuth({children, roles}: { children: JSX.Element, roles: string[] }) {

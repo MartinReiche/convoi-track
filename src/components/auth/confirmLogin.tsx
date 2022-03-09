@@ -6,8 +6,8 @@ import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import {ReactComponent as Logo} from "../logos/logo_quad.svg";
-import getFirebase from "../utils/getFirebase";
+import {ReactComponent as Logo} from "../../logos/logo_quad.svg";
+import getFirebase from "../../utils/getFirebase";
 import {isSignInWithEmailLink, signInWithEmailLink} from 'firebase/auth';
 import ErrorIcon from '@mui/icons-material/Error';
 import Typography from "@mui/material/Typography";
@@ -45,6 +45,8 @@ export function ConfirmLogin() {
                         setLoading(false);
                     })
                     .catch((error) => {
+                        // TODO Handle Expired links
+                        console.log(error)
                         if (error.message.search(/auth\/invalid-email/g)) {
                             formik.setErrors({email: 'The email provided does not match the sign-in email address.'})
                         } else {
