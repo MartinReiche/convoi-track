@@ -11,6 +11,7 @@ import getFirebase from "../../utils/getFirebase";
 import {isSignInWithEmailLink, signInWithEmailLink} from 'firebase/auth';
 import ErrorIcon from '@mui/icons-material/Error';
 import Typography from "@mui/material/Typography";
+import {Link} from 'react-router-dom';
 
 const validationSchema = yup.object({
     email: yup
@@ -44,13 +45,13 @@ export function ConfirmLogin() {
                     .then(() => {
                         setLoading(false);
                     })
-                    .catch((error) => {
-                        // TODO Handle Expired links
-                        console.log(error)
-                        if (error.message.search(/auth\/invalid-email/g)) {
-                            formik.setErrors({email: 'The email provided does not match the sign-in email address.'})
+                    .catch((e) => {
+                        if (e.message.match(/(auth\/invalid-action-code)/g)) {
+                            setError('This logon link is not valid anymore. You can request a new one below.');
+                        } else if (e.message.match(/(auth\/invalid-email)/g)) {
+                            setError('The email address you provided is not valid for this link.');
                         } else {
-                            setError('Something went wrong. Please try again later.');
+                            setError('Something went wrong.');
                         }
                         window.localStorage.removeItem('emailForSignIn');
                         setLoading(false);
@@ -59,7 +60,7 @@ export function ConfirmLogin() {
                 setLoading(false);
             }
         }
-    }, [email, formik])
+    }, [email])
 
     if (loading) return null;
     return (
@@ -77,17 +78,30 @@ export function ConfirmLogin() {
                     </Box>
                 </Grid>
                 {error ? (
-                    <Grid item>
-                        <Box sx={{display: 'flex', alignItems: 'center'}}>
-                            <ErrorIcon color="error" sx={{fontSize: '3em', mr: 2}}/>
-                            <Typography color="error">
-                                {error}
-                            </Typography>
-                        </Box>
-                    </Grid>
+                    <React.Fragment>
+                        <Grid item>
+                            <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                <ErrorIcon color="error" sx={{fontSize: '3em', mr: 2}}/>
+                                <Typography color="error">
+                                    {error}
+                                </Typography>
+                            </Box>
+                        </Grid>
+                        <Grid item sx={{mt: 5, justifyContent: 'center', display: 'flex'}}>
+                            <Link to="/login" style={{ textDecoration: 'none'}}>
+                                <Button
+                                    color="secondary"
+                                    variant="contained"
+                                    disabled={loading}
+                                >
+                                    Resend Login Link
+                                </Button>
+                            </Link>
+                        </Grid>
+                    </React.Fragment>
                 ) : (
                     <React.Fragment>
-                        <Grid item sx={{mb:5}}>
+                        <Grid item sx={{mb: 5}}>
                             <Typography>
                                 Hi! To make sure it's really you, please enter the email address for which
                                 you received the login link.
