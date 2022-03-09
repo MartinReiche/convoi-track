@@ -11,14 +11,17 @@ export const onLoginRequest = functions
         await admin.auth().getUserByEmail(snap.data().email);
 
         const actionCodeSettings = {
-          url: "http://localhost:3000/",
+          url: snap.data().host,
           handleCodeInApp: true,
         };
+
         const link = await admin.auth().generateSignInWithEmailLink(snap.data().email, actionCodeSettings);
+
         console.log(link);
 
         admin.firestore().collection("loginRequests").doc(snap.id).update({
           email: admin.firestore.FieldValue.delete(),
+          host: admin.firestore.FieldValue.delete(),
           success: true,
         });
       } catch (error) {

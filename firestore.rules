@@ -26,8 +26,9 @@ service cloud.firestore {
         }
         match /loginRequests/{documentId} {
                     allow create: if true
-                        && request.resource.data.keys().hasOnly(['email'])
+                        && request.resource.data.keys().hasOnly(['email', 'host'])
                         && request.resource.data.email is string
+                        && request.resource.data.host is string
                     allow get: if true
                 }
   }

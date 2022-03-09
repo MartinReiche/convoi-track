@@ -38,7 +38,10 @@ export default function Login() {
             const {db} = getFirebase();
             setLoading(true)
             try {
-                const loginRequest = await addDoc(collection(db, 'loginRequests'), {email});
+                const loginRequest = await addDoc(collection(db, 'loginRequests'), {
+                    email,
+                    host: window.location.protocol + '//' + window.location.host + '/',
+                });
                 setRequestId(loginRequest.id);
                 window.localStorage.setItem('emailForSignIn', email);
             } catch (e: any) {
