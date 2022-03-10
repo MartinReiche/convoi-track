@@ -9,7 +9,7 @@ service cloud.firestore {
             return request.auth.token.role == 'orga' && request.auth.token.project == projectId;
         }
         // Requests to Add Orga Users
-        match /project/{projectId}/addOrgaRequest {
+        match /projects/{projectId}/addOrgaRequest {
             allow get: if isAdmin(projectId);
             allow create: if isAdmin(projectId)
                              && request.resource.data.keys().hasOnly(['name', 'email'])
@@ -17,8 +17,9 @@ service cloud.firestore {
                              && request.resource.data.email is string;
         }
         // Orga Users
-        match /project/{projectId}/orga {
-            allow read: if isAdmin(projectId) && isOrga(projectId);
+        match /projects/{projectId}/orga/{user} {
+            allow read: if isAdmin(projectId) || isOrga(projectId);
+            allow list: if true;
             allow delete: if isAdmin(projectId);
         }
         // Login Requests

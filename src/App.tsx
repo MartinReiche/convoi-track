@@ -6,7 +6,7 @@ import RequireAuth from "./components/gates/requireAuth";
 import RequireUnauth from "./components/gates/requireUnauth";
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Home from "./pages/home";
-import Admin from "./pages/admin";
+import NotFound from "./pages/notFound";
 import Map from "./components/map";
 import AuthProvider from "./components/auth/authProvider";
 
@@ -16,10 +16,11 @@ function App() {
             <Layout>
                 <BrowserRouter>
                     <Routes>
+                        <Route path='*' element={<NotFound/>}/>
                         <Route
                             path="/"
                             element={
-                                <RequireAuth roles={['admin']}>
+                                <RequireAuth roles={['admin', 'orga', 'driver']}>
                                     <Home/>
                                 </RequireAuth>
                             }
@@ -35,16 +36,9 @@ function App() {
                         <Route
                             path="/dashboard"
                             element={
-                                <RequireAuth roles={['admin']}>
+                                <RequireAuth roles={['admin', 'orga']}>
                                     <Dashboard/>
                                 </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/admin"
-                            element={
-                                <RequireAuth roles={['admin']}>
-                                    <Admin/></RequireAuth>
                             }
                         />
                         <Route path="/map"

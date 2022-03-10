@@ -12,7 +12,6 @@ function RequireAuth({children, roles}: { children: JSX.Element, roles: string[]
     const location = useLocation();
     const {auth} = getFirebase();
 
-
     // show loading spinner if user is not yet loaded
     if (user.loading) return <Loading open={true} />;
 
@@ -23,12 +22,16 @@ function RequireAuth({children, roles}: { children: JSX.Element, roles: string[]
             </RequireUnauth>
         );
     }
-    // redirect to login screen
-    if (!user.isAuthenticated || !roles.includes(user.role || '')) {
+    // redirect to login screen if unauthenticated
+    if (!user.isAuthenticated) {
         return <Navigate to="/login" state={{from: location}} replace/>;
     }
+    // redirect home if insufficient permission
+    if(!roles.includes(user.role as string)) {
+        return <Navigate to="/" state={{from: location}} replace/>;
+    }
     // let user pass
-    if (user.isAuthenticated && roles.includes(user.role || '')) return children;
+    if (user.isAuthenticated && roles.includes(user.role as string)) return children;
     return null;
 }
 

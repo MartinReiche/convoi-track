@@ -10,8 +10,8 @@ export const addUser = async ({snap, userRecordCollection, claims}: addUserParam
   const {email, name, host} = snap.data();
   try {
     // create user
-    console.log("User", email, "created.");
     const user = await createUser(email, name);
+    console.log("User", email, "created.");
     // set custom user claim role to admin
     await admin.auth().setCustomUserClaims(user.uid, claims);
     // prepare log in link
