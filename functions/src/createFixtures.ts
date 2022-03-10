@@ -76,76 +76,77 @@ const convois = [
   },
 ];
 
+export const createFixtures = functions
+    .region("europe-west1")
+    .https.onRequest(async (req, res) => {
+      // create Project
+      const project = await admin.firestore().collection("projects").add({name: "Mission Lifeline"});
 
-export const createFixtures = functions.https.onRequest(async (req: any, res: any) => {
-// create Project
-  const project = await admin.firestore().collection("projects").add({name: "Mission Lifeline"});
+      // create admin account
+      admins.map(async (user) => {
+        await admin.firestore()
+            .collection(`projects/${project.id}/addAdminRequest`)
+            .add({project: project.id, ...user, host});
+      });
 
-  // create admin account
-  admins.map(async (user) => {
-    await admin.firestore()
-        .collection(`projects/${project.id}/addadmin`)
-        .add({project: project.id, ...user, host});
-  });
-
-  // create orga account
-  orga.map(async (user) => {
-    await admin.firestore()
-        .collection(`projects/${project.id}/addorga`)
-        .add({project: project.id, ...user, host});
-  });
+      // create orga account
+      orga.map(async (user) => {
+        await admin.firestore()
+            .collection(`projects/${project.id}/addOrgaRequest`)
+            .add({project: project.id, ...user, host});
+      });
 
 
-  // create convois
-  convois.map(async (convoi) => {
-    const convoiRef = await admin.firestore()
-        .collection(`projects/${project.id}/convois`)
-        .add({project: project.id, name: convoi.name, date: convoi.date});
+      // create convois
+      convois.map(async (convoi) => {
+        const convoiRef = await admin.firestore()
+            .collection(`projects/${project.id}/convois`)
+            .add({project: project.id, name: convoi.name, date: convoi.date});
 
-    // create cars
-    convoi.cars.map(async (car) => {
-    // create car
-      const carRef = await admin.firestore()
-          .collection(`projects/${project.id}/convois/${convoiRef.id}/cars`)
-          .add({
-            project: project.id,
-            convoi: convoiRef.id,
-            name: car.name,
-            numberPlate: car.numberplate,
-            crew: car.crew,
-            guests: car.guests,
-            from: car.from,
-            to: car.to,
+        // create cars
+        convoi.cars.map(async (car) => {
+          // create car
+          const carRef = await admin.firestore()
+              .collection(`projects/${project.id}/convois/${convoiRef.id}/cars`)
+              .add({
+                project: project.id,
+                convoi: convoiRef.id,
+                name: car.name,
+                numberPlate: car.numberplate,
+                crew: car.crew,
+                guests: car.guests,
+                from: car.from,
+                to: car.to,
+              });
+
+          // create drivers
+          car.drivers.map(async (driver) => {
+            await admin.firestore()
+                .collection(`projects/${project.id}/convois/${convoiRef.id}/cars/${carRef.id}/addDriverRequest`)
+                .add({
+                  project: project.id,
+                  convoi: convoiRef.id,
+                  carId: carRef.id,
+                  host,
+                  ...driver,
+                });
           });
 
-      // create drivers
-      car.drivers.map(async (driver) => {
-        await admin.firestore()
-            .collection(`projects/${project.id}/convois/${convoiRef.id}/cars/${carRef.id}/adddriver`)
-            .add({
-              project: project.id,
-              convoi: convoiRef.id,
-              carId: carRef.id,
-              host,
-              ...driver,
-            });
+          // create status
+          car.status.map(async (status) => {
+            await admin.firestore()
+                .collection(`projects/${project.id}/convois/${convoiRef.id}/cars/${carRef.id}/status`)
+                .add({
+                  project: project.id,
+                  convoi: convoiRef.id,
+                  carId: carRef.id,
+                  ...status,
+                });
+          });
+        });
       });
 
-      // create status
-      car.status.map(async (status) => {
-        await admin.firestore()
-            .collection(`projects/${project.id}/convois/${convoiRef.id}/cars/${carRef.id}/status`)
-            .add({
-              project: project.id,
-              convoi: convoiRef.id,
-              carId: carRef.id,
-              ...status,
-            });
-      });
+      return res.send("Fixtures created!");
     });
-  });
-
-  return res.send("Fixtures created!");
-});
 
 

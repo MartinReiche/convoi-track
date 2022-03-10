@@ -10,6 +10,7 @@ export const addUser = async ({snap, userRecordCollection, claims}: addUserParam
   const {email, name, host} = snap.data();
   try {
     // create user
+    console.log("User", email, "created.");
     const user = await createUser(email, name);
     // set custom user claim role to admin
     await admin.auth().setCustomUserClaims(user.uid, claims);
@@ -20,7 +21,7 @@ export const addUser = async ({snap, userRecordCollection, claims}: addUserParam
     };
     const logInLink = await admin.auth().generateSignInWithEmailLink(email, actionCodeSettings);
     // send login Link
-    console.log("Login Link Created for User", email, ":");
+    console.log("Login Link Created for User", email);
     console.log(logInLink);
     await admin.firestore().collection(userRecordCollection).doc(email)
         .set({name, email, uid: user.uid});
@@ -49,7 +50,7 @@ export const deleteUser = async (email: string) => {
     const user = await admin.auth().getUserByEmail(email);
     if (!user) return null;
     await admin.auth().deleteUser(user.uid);
-    console.log("Deleted User");
+    console.log("Deleted User", user.email);
     return null;
   } catch (e) {
     return false;

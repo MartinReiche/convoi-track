@@ -9,6 +9,9 @@ type User = {
     isAuthenticated: boolean
     loading: boolean,
     role?: 'driver' | 'orga' | 'admin'
+    project?: string
+    convoi?: string
+    car?: string
 }
 
 const defaultUser = {
@@ -26,22 +29,23 @@ const AuthContext = React.createContext<{ user: User, signout: () => void }>({
 export const useAuth = () => React.useContext(AuthContext);
 
 export function AuthProvider({children}: InferProps<typeof AuthProvider.propTypes>) {
-    const [user, setUser] = React.useState(defaultUser);
+    const [user, setUser] = React.useState<User>(defaultUser);
 
     React.useEffect(() => {
         const {auth} = getFirebase();
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const idTokenResult = await getIdTokenResult(user);
-                const userState = {
+                setUser({
                     email: user.email as string,
                     name: user.displayName as string,
                     isAuthenticated: true,
-                    role: idTokenResult.claims.role as string,
+                    role: idTokenResult.claims.role as 'driver' | 'orga' | 'admin',
+                    project: idTokenResult.claims.project as string,
+                    convoi: idTokenResult.claims.convoi as string,
+                    car: idTokenResult.claims.car as string,
                     loading: false,
-                    provideEmailForLogin: false
-                };
-                setUser(userState);
+                });
             } else {
                 setUser({...defaultUser, loading: false});
             }

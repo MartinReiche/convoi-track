@@ -17,6 +17,7 @@ export const onLoginRequest = functions
 
         const link = await admin.auth().generateSignInWithEmailLink(snap.data().email, actionCodeSettings);
 
+        console.log("Login Link created for user", snap.data().email);
         console.log(link);
 
         admin.firestore().collection("loginRequests").doc(snap.id).update({

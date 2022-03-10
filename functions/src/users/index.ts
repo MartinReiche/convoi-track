@@ -4,11 +4,11 @@ import {addUser, deleteUser} from "./utils";
 export const addDriverUser = functions
     .region("europe-west1")
     .firestore
-    .document("projects/{projectId}/convois/{convoiId}/cars/{carId}/adddriver/{id}")
+    .document("projects/{projectId}/convois/{convoiId}/cars/{carId}/addDriverRequest/{id}")
     .onCreate(async (snap, {params}) => {
       const {projectId, convoiId, carId} = params;
       const userRecordCollection = `projects/${projectId}/convois/${convoiId}/cars/${carId}/drivers`;
-      const claims = {driver: true, project: projectId, convoi: convoiId, car: carId};
+      const claims = {role: "driver", project: projectId, convoi: convoiId, car: carId};
       await addUser({snap, claims, userRecordCollection});
     });
 
@@ -23,11 +23,11 @@ export const removeDriverUser = functions
 export const addOrgaUser = functions
     .region("europe-west1")
     .firestore
-    .document("projects/{projectId}/addorga/{id}")
+    .document("projects/{projectId}/addOrgaRequest/{id}")
     .onCreate(async (snap, {params}) => {
       const {projectId} = params;
       const userRecordCollection = `projects/${projectId}/orga`;
-      const claims = {orga: true, project: projectId};
+      const claims = {role: "orga", project: projectId};
       await addUser({snap, claims, userRecordCollection});
     });
 
@@ -43,11 +43,11 @@ export const removeOrgaUser = functions
 export const addAdminUser = functions
     .region("europe-west1")
     .firestore
-    .document("projects/{projectId}/addadmin/{id}")
+    .document("projects/{projectId}/addAdminRequest/{id}")
     .onCreate(async (snap, {params}) => {
       const {projectId} = params;
       const userRecordCollection = `projects/${projectId}/admins`;
-      const claims = {admin: true, project: projectId};
+      const claims = {role: "admin", project: projectId};
       await addUser({snap, claims, userRecordCollection});
     });
 
