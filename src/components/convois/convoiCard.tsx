@@ -4,6 +4,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CardActions from '@mui/material/CardActions';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -62,15 +63,32 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                         <Typography variant="h6">
                             {convoi.name}
                         </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                            {!!address && `To: ${address}`}
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                            {`Departure: ${toDateString(convoi.etd)}`}
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                            {`Arrival: ${toDateString(convoi.eta)}`}
-                        </Typography>
+                        {!!address && (
+                            <Box>
+                                <Typography variant="subtitle1" color="secondary" component="span" fontWeight="bold">
+                                    To:
+                                </Typography>
+                                <Typography variant="subtitle1" color="text.secondary" component="span">
+                                    {` ${address}`}
+                                </Typography>
+                            </Box>
+                        )}
+                        <Box>
+                            <Typography variant="subtitle1" color="secondary" component="span" fontWeight="bold">
+                                Departure:
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary" component="span">
+                                {` ${toDateString(convoi.etd)}`}
+                            </Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="subtitle1" color="secondary" component="span" fontWeight="bold">
+                                Arrival:
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary" component="span">
+                                {` ${toDateString(convoi.eta)}`}
+                            </Typography>
+                        </Box>
                     </CardContent>
                     <CardActions>
                         <Link to={`/convoys/${convoi.id}`} style={{textDecoration: 'none'}}>
