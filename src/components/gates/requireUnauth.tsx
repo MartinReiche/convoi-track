@@ -11,7 +11,6 @@ function RequireUnauth({children}: { children: JSX.Element}) {
     const {user} = useAuth();
     const location = useLocation() as LocationState;
 
-    console.log('requireUnauth')
     if (user.loading) return <Loading open={true} />;
     if (user.isAuthenticated) return <Navigate to={location.state?.from || '/'} replace />;
     else return children;

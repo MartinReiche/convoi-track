@@ -10,13 +10,16 @@ const admins = [
 const orga = [
   {email: "marcus@mission-lifieline.de", name: "Marcus"},
   {email: "nora@mission-lifeline.de", name: "Nora"},
+  {email: "john@mission-lifieline.de", name: "John"},
+  {email: "mila@mission-lifeline.de", name: "Mila"},
+  {email: "rob@mission-lifeline.de", name: "Ron"},
+  {email: "becca@mission-lifeline.de", name: "Becca"},
 ];
 
 const convois = [
   {
     name: "Convoi to Uzhgorod #1",
     date: new Date("2022-03-17T12:00:00"),
-    orga: ["marcus@mission-lifieline.de", "nora@mission-lifeline.de"],
     cars: [
       {
         name: "Tim & Anna",
@@ -78,7 +81,7 @@ const convois = [
 
 export const createFixtures = functions
     .region("europe-west1")
-    .https.onRequest(async (req, res) => {
+    .https.onRequest(async (req: any, res: any) => {
       // create Project
       const project = await admin.firestore().collection("projects").add({name: "Mission Lifeline"});
 

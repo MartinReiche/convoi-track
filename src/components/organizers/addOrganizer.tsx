@@ -1,7 +1,4 @@
 import * as React from 'react';
-import Fab from '@mui/material/Fab';
-import Box from '@mui/material/Box';
-import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -11,7 +8,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import {useFormik} from 'formik';
 import * as yup from 'yup';
 import getFirebase from "../../utils/getFirebase";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import {collection, addDoc, onSnapshot, doc} from "firebase/firestore";
+import {useAuth} from "../auth/authProvider";
+import Loading from "../loading";
+import SnackBar from '../snackbar';
 
 const validationSchema = yup.object({
     name: yup
@@ -23,9 +23,14 @@ const validationSchema = yup.object({
         .required('Email is required'),
 });
 
-export function AddUser() {
+export function AddOrganizer() {
     const [open, setOpen] = React.useState(false);
-    const [submitting, setSubmitting] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const [severity, setSeverity] = React.useState('info');
+    const [message, setMessage] = React.useState<null | string>(null);
+    const [requestId, setRequestId] = React.useState<string | null>(null);
+
+    const {user} = useAuth();
 
     const formik = useFormik({
         initialValues: {
@@ -33,29 +38,45 @@ export function AddUser() {
             email: '',
         },
         validationSchema: validationSchema,
-        onSubmit: async ({email, name}, {setFieldError}) => {
-            setSubmitting(true);
+        onSubmit: async ({email, name}) => {
             const {db} = getFirebase();
+            setLoading(true);
             try {
-                const q = query(collection(db, "orga"), where("email", "==", email));
-                const usersSnap = await getDocs(q);
-                if (usersSnap.docs.length) {
-                    setSubmitting(false);
-                    setFieldError('email', 'User already exists');
-                } else {
-                    await addDoc(collection(db, "orga"), {name, email});
-                    setSubmitting(false);
-                    formik.resetForm();
-                    handleClose();
-                }
+                const requestRef = await addDoc(collection(db, `projects/${user.project}/addOrgaRequest`), {
+                    name,
+                    email,
+                    host: window.location.protocol + '//' + window.location.host + '/',
+                });
+                setRequestId(requestRef.id);
+                handleClose();
             } catch (e: any) {
-                setSubmitting(false);
-                console.error(e);
-                formik.resetForm();
+                setLoading(false);
+                setSeverity('error');
+                setMessage("Something went wrong. Please try again later.");
                 handleClose();
             }
         },
     });
+
+    React.useEffect(() => {
+        if (requestId) {
+            const {db} = getFirebase();
+            const unsubscribe = onSnapshot(doc(db, `projects/${user.project}/addOrgaRequest`, requestId), doc => {
+                if (doc.exists() && doc.data().success) {
+                    setLoading(false);
+                    setSeverity('success');
+                    setMessage('The user has been added and an invitation email has been sent.')
+                } else if (doc.exists() && doc.data().error) {
+                    setLoading(false);
+                    setSeverity('error');
+                    setMessage(doc.data().error);
+                }
+            });
+            return function cleanUp() {
+                unsubscribe();
+            }
+        }
+    }, [user.project, requestId, formik])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -68,11 +89,11 @@ export function AddUser() {
 
     return (
         <React.Fragment>
-            <Box>
-                <Fab color="secondary" aria-label="add" onClick={handleClickOpen}>
-                    <AddIcon/>
-                </Fab>
-            </Box>
+            <Loading open={loading || user.loading}/>
+            <SnackBar severity={severity} message={message} />
+            <Button color="secondary" aria-label="add" onClick={handleClickOpen}>
+                Add Organizer
+            </Button>
             <Dialog open={open} onClose={handleClose}>
                 <form onSubmit={formik.handleSubmit}>
                     <DialogTitle>Add Organizer</DialogTitle>
@@ -107,7 +128,7 @@ export function AddUser() {
                     </DialogContent>
                     <DialogActions>
                         <Button color="secondary" onClick={handleClose}>Cancel</Button>
-                        <Button color="secondary" type="submit" disabled={submitting}>Add User</Button>
+                        <Button color="secondary" type="submit" disabled={loading}>Add User</Button>
                     </DialogActions>
                 </form>
             </Dialog>
@@ -115,7 +136,7 @@ export function AddUser() {
     );
 }
 
-export default AddUser;
+export default AddOrganizer;
 
 
 

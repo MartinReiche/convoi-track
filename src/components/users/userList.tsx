@@ -14,6 +14,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Box from '@mui/material/Box';
 
 interface User {
     name: string;
@@ -58,7 +59,11 @@ function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>
                                 <ListItemAvatar>
                                     <NameAvatar name={user.name}/>
                                 </ListItemAvatar>
-                                <ListItemText id={labelId} primary={`${user.name} (${user.email})`}/>
+                                <Box >
+                                    <ListItemText id={labelId} primary={user.name}/>
+                                    <ListItemText id={labelId} secondary={user.email}/>
+                                </Box>
+
                             </ListItemButton>
                         </ListItem>
                     );
