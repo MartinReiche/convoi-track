@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes, {InferProps} from 'prop-types';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -15,41 +14,50 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
+import {GeoPoint} from "firebase/firestore";
 
-type User = {
-    name: string;
-    email: string;
+type Convoi = {
     id: string;
+    name: string;
+    etd: Date;
+    eta: Date;
+    to: GeoPoint;
 }
 
-function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>) {
-    const [dialogOpen, setDialogOpen] = React.useState(false);
-    const [currentUser, setCurrentUser] = React.useState<User|null>(null);
+interface ConvoiListProps {
+    convois: Convoi[]
+    deleteCallback: (id: string) => {}
+}
 
-    const handleDialogOpen = (user: User) => {
-          setCurrentUser(user);
-          setDialogOpen(true);
+
+function ConvoiList({convois, deleteCallback}: ConvoiListProps) {
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [currentConvoi, setCurrentConvoi] = React.useState<Convoi>();
+
+    const handleDialogOpen = (convoi: Convoi) => {
+        setCurrentConvoi(convoi);
+        setDialogOpen(true);
     }
 
     const handleClose = () => {
         setDialogOpen(false);
     }
 
-    const handleDeleteUser = () => {
+    const handleDeleteConvoi = () => {
         handleClose();
-        deleteCallback(currentUser?.id);
+        if (currentConvoi) deleteCallback(currentConvoi.id);
     }
 
     return (
         <React.Fragment>
             <List dense sx={{width: '100%'}}>
-                {users.map((user, index) => {
+                {convois.map((convoi, index) => {
                     const labelId = `checkbox-list-secondary-label-${index}`;
                     return (
                         <ListItem
                             key={index}
                             secondaryAction={
-                                <IconButton color="secondary" onClick={() => handleDialogOpen(user)}>
+                                <IconButton color="secondary" onClick={() => handleDialogOpen(convoi)}>
                                     <DeleteIcon/>
                                 </IconButton>
                             }
@@ -57,13 +65,11 @@ function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>
                         >
                             <ListItemButton>
                                 <ListItemAvatar>
-                                    <NameAvatar name={user.name}/>
+                                    <NameAvatar name={convoi.name}/>
                                 </ListItemAvatar>
-                                <Box >
-                                    <ListItemText id={labelId} primary={user.name}/>
-                                    <ListItemText id={labelId} secondary={user.email}/>
+                                <Box>
+                                    <ListItemText id={labelId} primary={convoi.name}/>
                                 </Box>
-
                             </ListItemButton>
                         </ListItem>
                     );
@@ -80,13 +86,12 @@ function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {`Do you really want to delete te Organizer Account for ${currentUser?.name} 
-                          (${currentUser?.email})`}
+                        {`Do you really want to delete ${currentConvoi?.name}?`}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button color="secondary" onClick={handleClose} autoFocus>Cancel</Button>
-                    <Button color="error" onClick={handleDeleteUser}>Delete</Button>
+                    <Button color="error" onClick={handleDeleteConvoi}>Delete</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>
@@ -94,15 +99,4 @@ function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>
     );
 }
 
-UserList.propTypes = {
-    users: PropTypes.arrayOf(
-        PropTypes.shape({
-            name: PropTypes.string.isRequired,
-            email: PropTypes.string.isRequired,
-            id: PropTypes.string.isRequired
-        }).isRequired
-    ).isRequired,
-    deleteCallback: PropTypes.func.isRequired
-}
-
-export default UserList;
+export default ConvoiList;

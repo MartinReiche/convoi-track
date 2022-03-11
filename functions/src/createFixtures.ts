@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
+
 const host = "http://localhost:3000/";
 
 const admins = [
@@ -19,15 +20,17 @@ const orga = [
 const convois = [
   {
     name: "Convoi to Uzhgorod #1",
-    date: new Date("2022-03-17T12:00:00"),
+    etd: new Date("2022-03-17T12:00:00"),
+    eta: new Date("2022-04-17T14:00:00"),
+    to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
     cars: [
       {
         name: "Tim & Anna",
         numberplate: "L-HC-1337",
         crew: 0,
         guests: 0,
-        from: {lat: 51.30741649829015, lng: 12.374281590207698},
-        to: {lat: 48.66112742163311, lng: 22.262808868534815},
+        from: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+        to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
         eta: new Date("2022-04-17T11:00:00"),
         drivers: [
           {name: "Anna", email: "anna@mail.com", phone: "1234-12345678"},
@@ -35,8 +38,8 @@ const convois = [
         ],
         status: [
           {
-            pos: {lat: 51.30741649829015, lng: 12.374281590207698},
-            to: {lat: 48.66112742163311, lng: 22.262808868534815},
+            pos: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+            to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
             eta: new Date("2022-04-17T10:30:00"),
             date: new Date("2022-03-17T12:05:00"),
             crew: 2,
@@ -44,8 +47,8 @@ const convois = [
             misc: "Start in Leipzig",
           },
           {
-            pos: {lat: 51.17407848718044, lng: 15.024802536254738},
-            to: {lat: 48.66112742163311, lng: 22.262808868534815},
+            pos: new admin.firestore.GeoPoint(51.17407848718044, 15.024802536254738),
+            to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
             eta: new Date("2022-04-17T11:00:00"),
             date: new Date("2022-03-17T14:45:00"),
             crew: 2,
@@ -60,7 +63,7 @@ const convois = [
         crew: 0,
         guests: 0,
         from: null,
-        to: {lat: 48.66112742163311, lng: 22.262808868534815},
+        to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
         eta: null,
         drivers: [],
         status: [],
@@ -71,7 +74,9 @@ const convois = [
   },
   {
     name: "Convoi to Uzhgorod #2",
-    date: new Date("2022-04-17T10:00:00"),
+    etd: new Date("2022-04-17T12:00:00"),
+    eta: new Date("2022-05-17T14:00:00"),
+    to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
     orga: [
       {email: "nora@mission-lifeline.de", name: "Nora"},
     ],
@@ -104,7 +109,13 @@ export const createFixtures = functions
       convois.map(async (convoi) => {
         const convoiRef = await admin.firestore()
             .collection(`projects/${project.id}/convois`)
-            .add({project: project.id, name: convoi.name, date: convoi.date});
+            .add({
+              project: project.id,
+              name: convoi.name,
+              etd: convoi.etd,
+              eta: convoi.eta,
+              to: convoi.to,
+            });
 
         // create cars
         convoi.cars.map(async (car) => {
