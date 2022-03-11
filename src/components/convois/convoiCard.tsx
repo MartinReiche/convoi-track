@@ -3,25 +3,39 @@ import {GeoPoint} from "firebase/firestore";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import CardActions from '@mui/material/CardActions';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import GoogleMapReact from "google-map-react";
 import MarkerIcon from '@mui/icons-material/Room';
 import PropTypes from "prop-types";
+import {Link} from "react-router-dom";
+import {Timestamp} from 'firebase/firestore';
 
 type Convoi = {
     id: string;
     name: string;
-    etd: Date;
-    eta: Date;
+    etd: Timestamp;
+    eta: Timestamp;
     to: GeoPoint;
 }
 
 const DEFAULT_ZOOM = 11;
 
+const toDateString = (date: Timestamp) => {
+    return date.toDate().toLocaleDateString(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+    })
+}
 
 const Marker = () => (
-    <MarkerIcon color="primary" sx={{fontSize: 40 ,transform: 'translate(-50%,-100%)'}}/>
+    <MarkerIcon color="primary" sx={{fontSize: 40, transform: 'translate(-50%,-100%)'}}/>
 )
 
 Marker.propTypes = {
@@ -29,7 +43,7 @@ Marker.propTypes = {
     lng: PropTypes.number,
 }
 
-function ConvoiCard({convoi}: {convoi: Convoi}) {
+function ConvoiCard({convoi}: { convoi: Convoi }) {
     const [address, setAddress] = React.useState<string>();
 
 
@@ -41,28 +55,39 @@ function ConvoiCard({convoi}: {convoi: Convoi}) {
     }
 
     return (
-        <Card sx={(theme) => ({background: theme.palette.primary.main, display: 'flex'})}>
-            <Grid container sx={{flexDirection: {xs: 'column', sm: 'row'}}}>
-                <Grid item xs={7}>
-                    <CardContent sx={{flex: '1 0 auto'}}>
-                        <Typography component="div" variant="h6">
+        <Card sx={(theme) => ({background: theme.palette.primary.main})}>
+            <Grid container>
+                <Grid item xs={12} sm={7} flexDirection="column" justifyContent="space-between" sx={{display: 'flex'}}>
+                    <CardContent>
+                        <Typography variant="h6">
                             {convoi.name}
                         </Typography>
-                        <Typography variant="subtitle1" color="text.secondary" component="div">
+                        <Typography variant="subtitle1" color="text.secondary">
                             {!!address && `To: ${address}`}
                         </Typography>
+                        <Typography variant="subtitle1" color="text.secondary">
+                            {`Departure: ${toDateString(convoi.etd)}`}
+                        </Typography>
+                        <Typography variant="subtitle1" color="text.secondary">
+                            {`Arrival: ${toDateString(convoi.eta)}`}
+                        </Typography>
                     </CardContent>
+                    <CardActions>
+                        <Link to={`/convoys/${convoi.id}`} style={{textDecoration: 'none'}}>
+                            <Button variant="contained" color="secondary">Go To Convoy</Button>
+                        </Link>
+                    </CardActions>
                 </Grid>
 
-                <Grid item xs={5}>
-                    <CardMedia sx={{height: 200}}>
+                <Grid item xs={12} sm={5}>
+                    <CardMedia sx={{height: '100%', minHeight: 200}}>
                         <GoogleMapReact
                             bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}}
                             center={{lat: convoi.to.latitude, lng: convoi.to.longitude}}
                             zoom={DEFAULT_ZOOM}
                             yesIWantToUseGoogleMapApiInternals
                             onGoogleApiLoaded={({map, maps}) => handleApiLoaded(map, maps)}
-                            options={(maps) => ({
+                            options={() => ({
                                 zoomControl: false,
                                 mapTypeControl: false,
                                 scaleControl: false,

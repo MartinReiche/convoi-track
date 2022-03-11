@@ -32,7 +32,14 @@ function App() {
                                 </RequireUnauth>
                             }
                         />
-                        <Route path="/map"
+                        <Route path="/convoys/new"
+                               element={
+                                   <RequireAuth roles={['admin', 'orga', 'driver']}>
+                                       <Map />
+                                   </RequireAuth>
+                               }
+                        />
+                        <Route path="/convoys/:id"
                                element={
                                    <RequireAuth roles={['admin', 'orga', 'driver']}>
                                        <Map/>

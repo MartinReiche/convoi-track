@@ -1,6 +1,6 @@
 import * as React from "react";
 import Container from '@mui/material/Container';
-import {collection, query, onSnapshot} from "firebase/firestore";
+import {collection, query, onSnapshot, Timestamp} from "firebase/firestore";
 import getFirebase from "../../utils/getFirebase";
 import Loading from "../loading";
 import {useAuth} from "../auth/authProvider";
@@ -11,17 +11,18 @@ import Pagination from "@mui/material/Pagination"
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
-import AddConvoi from "./addConvoi";
 import {GeoPoint} from 'firebase/firestore';
 import ConvoiCard from "./convoiCard";
+import {Link} from "react-router-dom";
+import Button from "@mui/material/Button";
 
 const PAGE_SIZE = 4;
 
 interface Convoi {
     id: string,
     name: string,
-    etd: Date,
-    eta: Date,
+    etd: Timestamp,
+    eta: Timestamp,
     to: GeoPoint
 }
 
@@ -67,10 +68,10 @@ export function Convois() {
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
             <Card>
-                <CardHeader title="Convoys"/>
+                <CardHeader title="Manage Convoys"/>
                 <CardContent>
                     <Stack spacing={2}>
-                        {convoisOnPage.map((convoi, index) => (
+                        {convoisOnPage.map((convoi) => (
                             <ConvoiCard key={convoi.id} convoi={convoi} />
                         ))}
                     </Stack>
@@ -92,7 +93,11 @@ export function Convois() {
                             )}
                         </Grid>
                         <Grid item>
-                            {user.role === 'admin' && <AddConvoi/>}
+                            {user.role === 'admin' && (
+                                <Link to={`/convoys/new`} style={{textDecoration: 'none'}}>
+                                    <Button color="secondary">Add Convoy</Button>
+                                </Link>
+                            )}
                         </Grid>
                     </Grid>
                 </CardActions>

@@ -67,7 +67,7 @@ export function Organizers() {
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
             <Card>
-                <CardHeader title="Orgainzers"/>
+                <CardHeader title="Manage Orgainzers"/>
                 <UserList users={usersOnPage} deleteCallback={handleDeleteUser}/>
                 <CardActions>
                     <Grid container sx={{
