@@ -1,7 +1,6 @@
 import React from 'react';
 import Layout from './layout';
 import Login from './pages/login';
-import Dashboard from './pages/dashboard';
 import RequireAuth from "./components/gates/requireAuth";
 import RequireUnauth from "./components/gates/requireUnauth";
 import {BrowserRouter, Routes, Route} from "react-router-dom";
@@ -31,14 +30,6 @@ function App() {
                                 <RequireUnauth>
                                     <Login/>
                                 </RequireUnauth>
-                            }
-                        />
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <RequireAuth roles={['admin', 'orga']}>
-                                    <Dashboard/>
-                                </RequireAuth>
                             }
                         />
                         <Route path="/map"
