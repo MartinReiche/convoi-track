@@ -1,19 +1,21 @@
 import * as React from "react";
 import Container from '@mui/material/Container';
-import {collection, query, onSnapshot, deleteDoc, doc} from "firebase/firestore";
+import {collection, query, onSnapshot} from "firebase/firestore";
 import getFirebase from "../../utils/getFirebase";
 import Loading from "../loading";
 import {useAuth} from "../auth/authProvider";
+import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader"
 import Pagination from "@mui/material/Pagination"
 import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
 import AddConvoi from "./addConvoi";
-import { GeoPoint } from 'firebase/firestore';
-import ConvoiList from "./convoiList";
+import {GeoPoint} from 'firebase/firestore';
+import ConvoiCard from "./convoiCard";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 4;
 
 interface Convoi {
     id: string,
@@ -61,24 +63,25 @@ export function Convois() {
         setConvoisOnPage(convois.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
     }
 
-    const handleDeleteConvoi = async (id: string) => {
-        const {db} = getFirebase();
-        await deleteDoc(doc(db, `projects/${user.project}/convois`, id))
-    }
-
     if (loading) return <Loading open={true}/>
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
             <Card>
-                <CardHeader title="Convois"/>
-                <ConvoiList convois={convoisOnPage} deleteCallback={handleDeleteConvoi} />
+                <CardHeader title="Convoys"/>
+                <CardContent>
+                    <Stack spacing={2}>
+                        {convoisOnPage.map((convoi, index) => (
+                            <ConvoiCard key={convoi.id} convoi={convoi} />
+                        ))}
+                    </Stack>
+                </CardContent>
                 <CardActions>
                     <Grid container sx={{
                         justifyContent: 'space-between',
-                        flexDirection: { xs: 'column', sm: 'row'},
+                        flexDirection: {xs: 'column', sm: 'row'},
                         alignItems: 'center'
-                    }} >
-                        <Grid item sx={{ mb: { xs: 3, sm: 0}}} >
+                    }}>
+                        <Grid item sx={{mb: {xs: 3, sm: 0}}}>
                             {totalPages > 1 && (
                                 <Pagination
                                     size="small"
@@ -88,8 +91,8 @@ export function Convois() {
                                 />
                             )}
                         </Grid>
-                        <Grid item >
-                            {user.role === 'admin' && <AddConvoi />}
+                        <Grid item>
+                            {user.role === 'admin' && <AddConvoi/>}
                         </Grid>
                     </Grid>
                 </CardActions>

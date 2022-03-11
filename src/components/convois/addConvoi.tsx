@@ -92,11 +92,11 @@ export function AddConvoi() {
             <Loading open={loading || user.loading}/>
             <SnackBar severity={severity} message={message} />
             <Button color="secondary" aria-label="add" onClick={handleClickOpen}>
-                Add Organizer
+                Add Convoy
             </Button>
             <Dialog open={open} onClose={handleClose}>
                 <form onSubmit={formik.handleSubmit}>
-                    <DialogTitle>Add Organizer</DialogTitle>
+                    <DialogTitle>Add Convoy</DialogTitle>
                     <DialogContent>
                         <TextField
                             color="secondary"
@@ -128,7 +128,7 @@ export function AddConvoi() {
                     </DialogContent>
                     <DialogActions>
                         <Button color="secondary" onClick={handleClose}>Cancel</Button>
-                        <Button color="secondary" type="submit" disabled={loading}>Add User</Button>
+                        <Button color="secondary" type="submit" disabled={loading}>Add Convoy</Button>
                     </DialogActions>
                 </form>
             </Dialog>
