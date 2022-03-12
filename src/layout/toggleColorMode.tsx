@@ -9,8 +9,7 @@ export default function ToggleColorMode() {
   const theme = useTheme();
   const colorMode = React.useContext(ColorModeContext);
   return (
-
-      <IconButton sx={{ mr: 1 }} onClick={colorMode.toggleColorMode} color="inherit" size="large">
+      <IconButton sx={{ mr: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
         {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
       </IconButton>
   )

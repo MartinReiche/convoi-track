@@ -6,12 +6,15 @@ import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import {ReactComponent as Logo} from "../../logos/logo_quad.svg";
+import {ReactComponent as LogoDark} from "../../logos/logo_quad.svg";
+import {ReactComponent as LogoLight} from "../../logos/logo_quad_light.svg";
 import getFirebase from "../../utils/getFirebase";
 import {isSignInWithEmailLink, signInWithEmailLink} from 'firebase/auth';
 import ErrorIcon from '@mui/icons-material/Error';
+import InfoIcon from '@mui/icons-material/Info';
 import Typography from "@mui/material/Typography";
 import {Link} from 'react-router-dom';
+import {useTheme} from "@mui/material/styles";
 
 const validationSchema = yup.object({
     email: yup
@@ -24,6 +27,7 @@ export function ConfirmLogin() {
     const [email, setEmail] = React.useState<string | null>(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
+    const theme = useTheme();
 
     const formik = useFormik({
         initialValues: {
@@ -74,7 +78,8 @@ export function ConfirmLogin() {
             >
                 <Grid item sx={{display: 'flex', justifyContent: 'center'}}>
                     <Box sx={{maxWidth: '250px', mb: 8}}>
-                        <Logo width="100%" height="100%"/>
+                        {theme.palette.mode === 'dark' && <LogoDark width="100%" height="100%"/>}
+                        {theme.palette.mode === 'light' && <LogoLight width="100%" height="100%"/>}
                     </Box>
                 </Grid>
                 {error ? (
@@ -88,9 +93,8 @@ export function ConfirmLogin() {
                             </Box>
                         </Grid>
                         <Grid item sx={{mt: 5, justifyContent: 'center', display: 'flex'}}>
-                            <Link to="/login" style={{ textDecoration: 'none'}}>
+                            <Link to="/login" style={{textDecoration: 'none'}}>
                                 <Button
-                                    color="secondary"
                                     variant="contained"
                                     disabled={loading}
                                 >
@@ -102,10 +106,13 @@ export function ConfirmLogin() {
                 ) : (
                     <React.Fragment>
                         <Grid item sx={{mb: 5}}>
-                            <Typography>
-                                Hi! To make sure it's really you, please enter the email address for which
-                                you received the login link.
-                            </Typography>
+                            <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                <InfoIcon color="primary" sx={{fontSize: '3em', mr: 2}}/>
+                                <Typography>
+                                    Hi! To make sure it's really you, please enter the email address for which
+                                    you received the login link.
+                                </Typography>
+                            </Box>
                         </Grid>
                         <Grid item>
                             <TextField
@@ -121,11 +128,10 @@ export function ConfirmLogin() {
                                     formik.touched.email
                                     && formik.errors.email ? formik.errors.email : ' '
                                 }
-                                color="secondary"
                             />
                         </Grid>
                         <Grid item sx={{mt: 5, justifyContent: 'center', display: 'flex'}}>
-                            <Button color="secondary" variant="contained" type="submit" disabled={loading}>
+                            <Button variant="contained" type="submit" disabled={loading}>
                                 Confirm Email Address
                             </Button>
                         </Grid>

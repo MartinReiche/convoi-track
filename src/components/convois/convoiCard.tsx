@@ -47,7 +47,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
     }
 
     return (
-        <Card sx={(theme) => ({background: theme.palette.primary.main})}>
+        <Card>
             <Grid container>
                 <Grid item xs={12} sm={7} flexDirection="column" justifyContent="space-between" sx={{display: 'flex'}}>
                     <CardContent>
@@ -56,7 +56,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                         </Typography>
                         {!!address && (
                             <Box>
-                                <Typography variant="subtitle1" color="secondary" component="span" fontWeight="bold">
+                                <Typography variant="subtitle1" color="primary" component="span" fontWeight="bold">
                                     To:
                                 </Typography>
                                 <Typography variant="subtitle1" color="text.secondary" component="span">
@@ -65,7 +65,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                             </Box>
                         )}
                         <Box>
-                            <Typography variant="subtitle1" color="secondary" component="span" fontWeight="bold">
+                            <Typography variant="subtitle1" color="primary" component="span" fontWeight="bold">
                                 Departure:
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="span">
@@ -73,7 +73,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="subtitle1" color="secondary" component="span" fontWeight="bold">
+                            <Typography variant="subtitle1" color="primary" component="span" fontWeight="bold">
                                 Arrival:
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="span">
@@ -83,7 +83,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                     </CardContent>
                     <CardActions>
                         <Link to={`/convoys/${convoi.id}`} style={{textDecoration: 'none'}}>
-                            <Button variant="contained" color="secondary">Go To Convoy</Button>
+                            <Button>Go To Convoy</Button>
                         </Link>
                     </CardActions>
                 </Grid>

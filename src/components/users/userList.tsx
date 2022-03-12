@@ -49,8 +49,8 @@ function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>
                         <ListItem
                             key={index}
                             secondaryAction={
-                                <IconButton color="secondary" onClick={() => handleDialogOpen(user)}>
-                                    <DeleteIcon/>
+                                <IconButton onClick={() => handleDialogOpen(user)}>
+                                    <DeleteIcon color="primary"/>
                                 </IconButton>
                             }
                             disablePadding
@@ -85,8 +85,8 @@ function UserList({users, deleteCallback}: InferProps<typeof UserList.propTypes>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button color="secondary" onClick={handleClose} autoFocus>Cancel</Button>
-                    <Button color="error" onClick={handleDeleteUser}>Delete</Button>
+                    <Button onClick={handleClose} autoFocus>Cancel</Button>
+                    <Button variant="contained" color="error" onClick={handleDeleteUser}>Delete</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

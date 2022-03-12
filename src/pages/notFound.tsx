@@ -13,14 +13,12 @@ export function NotFound() {
                 <Typography
                     variant="h4"
                     component="h1"
-                    color="secondary"
                     sx={{ fontWeight: 'bold' }}
                 >
                     404 - Not Found. Hmm... There is nothing here.
                 </Typography>
                 <Box>
                     <Button
-                        color="secondary"
                         variant="contained"
                         sx={{mt: 8}}
                         onClick={() => navigate(-1)}

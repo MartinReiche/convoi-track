@@ -90,7 +90,7 @@ export function AddOrganizer() {
         <React.Fragment>
             <Loading open={loading || user.loading}/>
             <AlertBar {...alert} />
-            <Button color="secondary" aria-label="add" onClick={handleClickOpen}>
+            <Button variant="contained" onClick={handleClickOpen}>
                 Add Organizer
             </Button>
             <Dialog open={open} onClose={handleClose}>
@@ -98,7 +98,6 @@ export function AddOrganizer() {
                     <DialogTitle>Add Organizer</DialogTitle>
                     <DialogContent>
                         <TextField
-                            color="secondary"
                             autoFocus
                             margin="dense"
                             id="name"
@@ -112,7 +111,6 @@ export function AddOrganizer() {
                             helperText={formik.touched.name && formik.errors.name ? formik.errors.name : ' '}
                         />
                         <TextField
-                            color="secondary"
                             margin="dense"
                             id="email"
                             label="Email Address"
@@ -126,8 +124,8 @@ export function AddOrganizer() {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button color="secondary" onClick={handleClose}>Cancel</Button>
-                        <Button color="secondary" type="submit" disabled={loading}>Add User</Button>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button variant="contained" type="submit" disabled={loading}>Add Organizer</Button>
                     </DialogActions>
                 </form>
             </Dialog>

@@ -8,12 +8,15 @@ import Grid from "@mui/material/Grid";
 import Container from '@mui/material/Container';
 import getFirebase from "../utils/getFirebase";
 import Loading from "../components/loading";
-import {ReactComponent as Logo} from '../logos/logo_quad.svg';
+import {ReactComponent as LogoDark} from "../logos/logo_quad.svg";
+import {ReactComponent as LogoLight} from "../logos/logo_quad_light.svg";
 import {addDoc, collection, doc, onSnapshot} from 'firebase/firestore';
 import {useAuth} from "../components/auth/authProvider";
 import ErrorIcon from '@mui/icons-material/Error';
 import SuccessIcon from '@mui/icons-material/CheckCircle';
 import Typography from "@mui/material/Typography";
+import {useTheme} from "@mui/material/styles";
+
 
 const validationSchema = yup.object({
     email: yup
@@ -28,6 +31,7 @@ export default function Login() {
     const [error, setError] = React.useState(false);
     const [message, setMessage] = React.useState<boolean | string>(false);
     const {user} = useAuth();
+    const theme = useTheme();
 
     const formik = useFormik({
         initialValues: {
@@ -85,7 +89,8 @@ export default function Login() {
                     >
                         <Grid item sx={{display: 'flex', justifyContent: 'center'}}>
                             <Box sx={{maxWidth: '250px', mb: 8}}>
-                                <Logo width="100%" height="100%"/>
+                                {theme.palette.mode === 'dark' && <LogoDark width="100%" height="100%"/>}
+                                {theme.palette.mode === 'light' && <LogoLight width="100%" height="100%"/>}
                             </Box>
                         </Grid>
                         {message ? (
@@ -94,14 +99,14 @@ export default function Login() {
                                     {error ? (
                                         <React.Fragment>
                                             <ErrorIcon color="error" sx={{fontSize: '3em', mr: 2}}/>
-                                            <Typography color="error">
+                                            <Typography>
                                                 {message}
                                             </Typography>
                                         </React.Fragment>
                                     ) : (
                                         <React.Fragment>
-                                            <SuccessIcon color="secondary" sx={{fontSize: '3em', mr: 2}}/>
-                                            <Typography color="secondary">
+                                            <SuccessIcon color="primary" sx={{fontSize: '3em', mr: 2}}/>
+                                            <Typography>
                                                 {message}
                                             </Typography>
                                         </React.Fragment>
@@ -123,11 +128,10 @@ export default function Login() {
                                         helperText={
                                             formik.touched.email && formik.errors.email ? formik.errors.email : ' '
                                         }
-                                        color="secondary"
                                     />
                                 </Grid>
                                 <Grid item sx={{mt: 5, justifyContent: 'center', display: 'flex'}}>
-                                    <Button color="secondary" variant="contained" type="submit" disabled={loading}>
+                                    <Button variant="contained" type="submit" disabled={loading}>
                                         Send Login Link
                                     </Button>
                                 </Grid>

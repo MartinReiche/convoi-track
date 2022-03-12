@@ -5,6 +5,7 @@ import AlertBar, {Alert} from "../components/alert";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import MapMarker from "../components/map/mapMarker";
 import AddConvoi from "../components/convois/addConvoi";
+import useMapColorModeStyles from "../components/map/useMapColorModeStyles";
 
 const DEFAULT_ZOOM = 13;
 const DEFAULT_CENTER = {lat: 52.5200, lng: 13.4050}
@@ -14,6 +15,7 @@ const NewConvoi = () => {
     const [zoom, setZoom] = React.useState(DEFAULT_ZOOM);
     const [apiLoaded, setApiLoaded] = React.useState(false);
     const {location, locationError} = useCurrentLocation();
+    const {mapStyles, mapBackgroundColor} = useMapColorModeStyles();
     const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
 
     React.useEffect(() => {
@@ -47,6 +49,8 @@ const NewConvoi = () => {
                     streetViewControl: false,
                     rotateControl: false,
                     fullscreenControl: false,
+                    styles: mapStyles,
+                    backgroundColor: mapBackgroundColor
                 })}
                 onChange={handleMapChange}
             >

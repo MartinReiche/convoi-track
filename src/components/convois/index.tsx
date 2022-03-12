@@ -15,6 +15,7 @@ import {GeoPoint} from 'firebase/firestore';
 import ConvoiCard from "./convoiCard";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
+import {grey} from "@mui/material/colors";
 
 const PAGE_SIZE = 4;
 
@@ -67,7 +68,7 @@ export function Convois() {
     if (loading) return <Loading open={true}/>
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
-            <Card>
+            <Card sx={(theme) => ({ backgroundColor: theme.palette.mode === 'dark' ? grey[900] : grey[200] })}>
                 <CardHeader title="Manage Convoys"/>
                 <CardContent>
                     <Stack spacing={2}>
@@ -95,7 +96,7 @@ export function Convois() {
                         <Grid item>
                             {user.role === 'admin' && (
                                 <Link to={`/convoys/new`} style={{textDecoration: 'none'}}>
-                                    <Button color="secondary">Add Convoy</Button>
+                                    <Button variant="contained">Add Convoy</Button>
                                 </Link>
                             )}
                         </Grid>

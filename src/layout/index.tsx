@@ -18,20 +18,22 @@ export const ColorModeContext = React.createContext({
 
 const Layout: React.FC = ({children}) => {
     const [mode, setMode] = React.useState<'light' | 'dark'>('light');
-    const colorMode = React.useMemo(
-        () => ({
-            toggleColorMode: () => {
-                setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-            },
-        }),
-        [],
-    );
 
-    const theme = React.useMemo(
-        () =>
-            createTheme(getDesignTokens(mode)),
-        [mode],
-    );
+    const colorMode = React.useMemo(() => ({
+            toggleColorMode: () => {
+                setMode((prevMode) => {
+                    const mode = prevMode === 'light' ? 'dark' : 'light'
+                    localStorage.setItem('colorMode', mode);
+                    return mode;
+                });
+            },
+        }), []);
+    const theme = React.useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+
+    React.useEffect(() => {
+        const mode = localStorage.getItem('colorMode');
+        if (mode === 'light' || mode === 'dark') setMode(mode);
+    },[])
 
     return (
         <ColorModeContext.Provider value={colorMode}>
@@ -47,7 +49,7 @@ const Layout: React.FC = ({children}) => {
                         height: {
                             xs: 'calc(100vh - 56px)',
                             sm: 'calc(100vh - 64px)',
-                        }
+                        },
                     }}>
                         {children}
                     </Box>

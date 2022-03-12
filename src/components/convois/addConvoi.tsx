@@ -67,7 +67,6 @@ export default function AddConvoi() {
                 <CardHeader title="Add a new Convoy"/>
                 <CardContent>
                     <TextField
-                        color="secondary"
                         autoFocus
                         margin="dense"
                         id="name"
@@ -81,7 +80,6 @@ export default function AddConvoi() {
                         helperText={formik.touched.name && formik.errors.name && formik.errors.name}
                     />
                     <TextField
-                        color="secondary"
                         margin="dense"
                         id="email"
                         label="Email Address"
@@ -98,12 +96,12 @@ export default function AddConvoi() {
                         value={formik.values.etd}
                         onChange={(value) => formik.setFieldValue('etd', value)}
                         renderInput={(params) => (
-                            <TextField {...params} fullWidth color="secondary" id="etd"/>
+                            <TextField {...params} fullWidth id="etd"/>
                         )}
                     />
                 </CardContent>
                 <CardActions sx={{justifyContent: 'flex-end'}}>
-                    <Button color="secondary" variant={"contained"} size="small" type="submit">Create Convoy</Button>
+                    <Button variant={"contained"} size="small" type="submit">Create Convoy</Button>
                 </CardActions>
             </form>
         </Card>

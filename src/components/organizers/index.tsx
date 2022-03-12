@@ -11,6 +11,7 @@ import CardHeader from "@mui/material/CardHeader"
 import Pagination from "@mui/material/Pagination"
 import CardActions from "@mui/material/CardActions";
 import Grid from "@mui/material/Grid";
+import {grey} from "@mui/material/colors";
 
 const PAGE_SIZE = 10;
 
@@ -65,8 +66,8 @@ export function Organizers() {
 
     if (loading) return <Loading open={true}/>
     return (
-        <Container maxWidth="md" sx={{pt: 5}}>
-            <Card>
+        <Container maxWidth="md" sx={{pt: 5, pb: 5}}>
+            <Card sx={(theme) => ({ backgroundColor: theme.palette.mode === 'dark' ? grey[900] : grey[200] })}>
                 <CardHeader title="Manage Orgainzers"/>
                 <UserList users={usersOnPage} deleteCallback={handleDeleteUser}/>
                 <CardActions>
