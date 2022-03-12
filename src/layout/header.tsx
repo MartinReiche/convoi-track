@@ -3,13 +3,14 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Menu from "./menu";
+import ToggleColorMode from "./toggleColorMode";
 import {ReactComponent as LogoText} from '../logos/logo_long.svg';
 import {Link} from "react-router-dom";
 
 export default function Header() {
     return (
         <Box sx={{flexGrow: 1}}>
-            <AppBar position="static" enableColorOnDark={true}>
+            <AppBar position="static" >
                 <Toolbar sx={{
                     display: 'flex',
                     justifyContent: 'space-between'
@@ -23,7 +24,10 @@ export default function Header() {
                                 <LogoText height="100%" width="100%"/>
                             </Link>
                         </Box>
-                    <Menu/>
+                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                        <ToggleColorMode />
+                        <Menu/>
+                    </Box>
                 </Toolbar>
             </AppBar>
         </Box>
