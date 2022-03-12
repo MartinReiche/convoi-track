@@ -7,16 +7,16 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import './index.css';
 import Box from "@mui/material/Box";
 
 const Layout: React.FC = ({children}) => {
     return (
         <ThemeProvider theme={darkTheme}>
             <CssBaseline/>
-            <div className="container">
+            <Box sx={{ minHeight: '100vh' }}>
                 <Header/>
                 <Box sx={{
+                    position: 'relative',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -27,7 +27,7 @@ const Layout: React.FC = ({children}) => {
                 }}>
                     {children}
                 </Box>
-            </div>
+            </Box>
         </ThemeProvider>
     )
 }

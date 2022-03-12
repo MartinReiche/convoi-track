@@ -10,9 +10,9 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import GoogleMapReact from "google-map-react";
 import MarkerIcon from '@mui/icons-material/Room';
-import PropTypes from "prop-types";
 import {Link} from "react-router-dom";
 import {Timestamp} from 'firebase/firestore';
+import MapMarker from "../map/mapMarker";
 
 type Convoi = {
     id: string;
@@ -33,15 +33,6 @@ const toDateString = (date: Timestamp) => {
         hour: 'numeric',
         minute: 'numeric'
     })
-}
-
-const Marker = () => (
-    <MarkerIcon color="primary" sx={{fontSize: 40, transform: 'translate(-50%,-100%)'}}/>
-)
-
-Marker.propTypes = {
-    lat: PropTypes.number,
-    lng: PropTypes.number,
 }
 
 function ConvoiCard({convoi}: { convoi: Convoi }) {
@@ -114,10 +105,9 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                                 fullscreenControl: false
                             })}
                         >
-                            <Marker
-                                lat={convoi.to.latitude}
-                                lng={convoi.to.longitude}
-                            />
+                            <MapMarker lat={convoi.to.latitude} lng={convoi.to.longitude}>
+                                <MarkerIcon color="error" sx={{fontSize: 40}}/>
+                            </MapMarker>
                         </GoogleMapReact>
                     </CardMedia>
                 </Grid>

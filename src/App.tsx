@@ -8,48 +8,53 @@ import Home from "./pages/home";
 import NotFound from "./pages/notFound";
 import Map from "./components/map";
 import AuthProvider from "./components/auth/authProvider";
+import NewConvoi from "./pages/newConvoi";
+import DateAdapter from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
 
 function App() {
     return (
-        <AuthProvider>
-            <Layout>
+        <LocalizationProvider dateAdapter={DateAdapter}>
+            <AuthProvider>
                 <BrowserRouter>
-                    <Routes>
-                        <Route path='*' element={<NotFound/>}/>
-                        <Route
-                            path="/"
-                            element={
-                                <RequireAuth roles={['admin', 'orga', 'driver']}>
-                                    <Home/>
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/login"
-                            element={
-                                <RequireUnauth>
-                                    <Login/>
-                                </RequireUnauth>
-                            }
-                        />
-                        <Route path="/convoys/new"
-                               element={
-                                   <RequireAuth roles={['admin', 'orga', 'driver']}>
-                                       <Map />
-                                   </RequireAuth>
-                               }
-                        />
-                        <Route path="/convoys/:id"
-                               element={
-                                   <RequireAuth roles={['admin', 'orga', 'driver']}>
-                                       <Map/>
-                                   </RequireAuth>
-                               }
-                        />
-                    </Routes>
+                    <Layout>
+                        <Routes>
+                            <Route path='*' element={<NotFound/>}/>
+                            <Route
+                                path="/"
+                                element={
+                                    <RequireAuth roles={['admin', 'orga', 'driver']}>
+                                        <Home/>
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/login"
+                                element={
+                                    <RequireUnauth>
+                                        <Login/>
+                                    </RequireUnauth>
+                                }
+                            />
+                            <Route path="/convoys/new"
+                                   element={
+                                       <RequireAuth roles={['admin', 'orga', 'driver']}>
+                                           <NewConvoi />
+                                       </RequireAuth>
+                                   }
+                            />
+                            <Route path="/convoys/:id"
+                                   element={
+                                       <RequireAuth roles={['admin', 'orga', 'driver']}>
+                                           <Map/>
+                                       </RequireAuth>
+                                   }
+                            />
+                        </Routes>
+                    </Layout>
                 </BrowserRouter>
-            </Layout>
-        </AuthProvider>
+            </AuthProvider>
+        </LocalizationProvider>
     );
 }
 

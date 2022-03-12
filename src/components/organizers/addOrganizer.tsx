@@ -11,7 +11,7 @@ import getFirebase from "../../utils/getFirebase";
 import {collection, addDoc, onSnapshot, doc} from "firebase/firestore";
 import {useAuth} from "../auth/authProvider";
 import Loading from "../loading";
-import SnackBar from '../snackbar';
+import AlertBar, {Alert} from '../alert';
 
 const validationSchema = yup.object({
     name: yup
@@ -26,9 +26,8 @@ const validationSchema = yup.object({
 export function AddOrganizer() {
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
-    const [severity, setSeverity] = React.useState('info');
-    const [message, setMessage] = React.useState<null | string>(null);
     const [requestId, setRequestId] = React.useState<string | null>(null);
+    const [alert, setAlert] = React.useState<Alert>({ severity: 'info', message: null });
 
     const {user} = useAuth();
 
@@ -51,8 +50,7 @@ export function AddOrganizer() {
                 handleClose();
             } catch (e: any) {
                 setLoading(false);
-                setSeverity('error');
-                setMessage("Something went wrong. Please try again later.");
+                setAlert({ severity: 'error', message: 'Something went wrong. Please try again later.'});
                 handleClose();
             }
         },
@@ -64,12 +62,13 @@ export function AddOrganizer() {
             const unsubscribe = onSnapshot(doc(db, `projects/${user.project}/addOrgaRequest`, requestId), doc => {
                 if (doc.exists() && doc.data().success) {
                     setLoading(false);
-                    setSeverity('success');
-                    setMessage('The user has been added and an invitation email has been sent.')
+                    setAlert({
+                        severity: 'success',
+                        message: 'The user has been added and an invitation email has been sent.'
+                    });
                 } else if (doc.exists() && doc.data().error) {
                     setLoading(false);
-                    setSeverity('error');
-                    setMessage(doc.data().error);
+                    setAlert({severity: 'error', message: doc.data().error})
                 }
             });
             return function cleanUp() {
@@ -90,7 +89,7 @@ export function AddOrganizer() {
     return (
         <React.Fragment>
             <Loading open={loading || user.loading}/>
-            <SnackBar severity={severity} message={message} />
+            <AlertBar {...alert} />
             <Button color="secondary" aria-label="add" onClick={handleClickOpen}>
                 Add Organizer
             </Button>
