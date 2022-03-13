@@ -9,6 +9,8 @@ import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 import ArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import ArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import ArrowDowntIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import Drawer from '@mui/material/Drawer';
 
 const DEFAULT_ZOOM = 13;
@@ -54,7 +56,6 @@ const NewConvoi = () => {
             map?.setCenter(place.geometry.location);
             map?.setZoom(17);
         } else {
-            console.log("CLEAR PARENT")
             setDestination(null);
             if (location) map?.setCenter({lat: location.lat, lng: location.lng});
             else map?.setCenter(DEFAULT_CENTER);
@@ -64,23 +65,47 @@ const NewConvoi = () => {
 
     return (
         <React.Fragment>
-            <Drawer
-                open={open}
-                hideBackdrop={true}
-                variant="persistent"
-            >
-                <Box sx={{pt: '74px', position: 'relative'}}>
-                    <AddConvoi map={map} mapApi={mapApi} onDestinationChange={handleDestinationChange} />
+            <Box sx={{ display: { xs: 'none', md: 'block'}}}>
+                <Drawer
+                    open={open}
+                    hideBackdrop={true}
+                    variant="persistent"
+                >
+                    <Box sx={{pt: '64px', minWidth: 350 }}>
+                        <AddConvoi map={map} mapApi={mapApi} onDestinationChange={handleDestinationChange} />
+                    </Box>
+                </Drawer>
+                <Box sx={{position: 'absolute', bottom: 40, left: 10, zIndex: (theme) => theme.zIndex.drawer}}>
+                    <Fab onClick={toggleMenuOpen} color="primary">
+                        {open ?
+                            <ArrowLeftIcon sx={{fontSize: 40}}/>
+                            : <ArrowRightIcon sx={{fontSize: 40}}/>
+                        }
+                    </Fab>
                 </Box>
-            </Drawer>
-            <Box sx={{position: 'absolute', bottom: 40, left: 10, zIndex: (theme) => theme.zIndex.drawer}}>
-                <Fab onClick={toggleMenuOpen} color="primary">
-                    {open ?
-                        <ArrowLeftIcon sx={{fontSize: 40}}/>
-                        : <ArrowRightIcon sx={{fontSize: 40}}/>
-                    }
-                </Fab>
             </Box>
+            <Box sx={{display: {xs: 'block', md: 'none'}}}>
+                <Drawer
+                    open={open}
+                    hideBackdrop={true}
+                    variant="persistent"
+                    anchor="top"
+                >
+                    <Box sx={{pt: { xs: '56px', sm: '64px' }, display: 'flex' }}>
+                        <AddConvoi map={map} mapApi={mapApi} onDestinationChange={handleDestinationChange} />
+                    </Box>
+                </Drawer>
+                <Box sx={{position: 'absolute', bottom: 40, left: 10, zIndex: (theme) => theme.zIndex.drawer}}>
+                    <Fab onClick={toggleMenuOpen} color="primary">
+                        {open ?
+                            <ArrowUpIcon sx={{fontSize: 40}}/>
+                            : <ArrowDowntIcon sx={{fontSize: 40}}/>
+                        }
+                    </Fab>
+                </Box>
+            </Box>
+
+
             <GoogleMapReact
                 bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '', libraries: 'places', language: 'en'}}
                 center={center}

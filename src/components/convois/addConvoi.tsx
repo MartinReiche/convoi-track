@@ -22,7 +22,7 @@ const validationSchema = yup.object({
 type AddConvoiProps = {
     map: google.maps.Map | undefined,
     mapApi: typeof google.maps | undefined,
-    onDestinationChange: (place: google.maps.places.PlaceResult|null) => void
+    onDestinationChange: (place: google.maps.places.PlaceResult | null) => void
 }
 
 export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiProps) {
@@ -35,7 +35,7 @@ export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiP
         initialValues: {
             name: '',
             address: '',
-            etd: undefined,
+            etd: new Date(),
             eta: new Date(),
         },
         validationSchema: validationSchema,
@@ -48,7 +48,6 @@ export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiP
             console.log("place id", destination?.place_id)
             console.log("place lat", destination?.geometry?.location?.lat())
             console.log("place lng", destination?.geometry?.location?.lng())
-
             // const {db} = getFirebase();
             // // setLoading(true);
             // try {
@@ -78,61 +77,62 @@ export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiP
 
     return (
         <React.Fragment>
-            <Loading open={loading} />
-            <Box sx={{p: 2, display: 'flex'}}>
-                <form onSubmit={formik.handleSubmit}>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        value={formik.values.name}
-                        onChange={formik.handleChange}
-                        error={formik.touched.name && Boolean(formik.errors.name)}
-                        helperText={formik.touched.name && formik.errors.name && formik.errors.name}
+            <Loading open={loading}/>
+            <Box
+                sx={{p: 2, display: 'flex', flexDirection: 'column', width: '100%'}}
+                component={'form'}
+                onSubmit={formik.handleSubmit}
+            >
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="Name"
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    error={formik.touched.name && Boolean(formik.errors.name)}
+                    helperText={formik.touched.name && formik.errors.name && formik.errors.name}
+                />
+                <PlaceSearch
+                    id="address"
+                    label="Destination"
+                    map={map}
+                    mapApi={mapApi}
+                    error={formik.touched.address && Boolean(formik.errors.address)}
+                    errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
+                    onChange={handleDestinationChange}
+                />
+                <Box sx={{pt: 4, pb: 1}}>
+                    <DateTimePicker
+                        label="Estimated Time of Departure"
+                        value={formik.values.etd}
+                        ampm={false}
+                        inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
+                        onChange={(value) => formik.setFieldValue('etd', value)}
+                        renderInput={(params) => (
+                            <TextField {...params} fullWidth/>
+                        )}
                     />
-                    <PlaceSearch
-                        id="address"
-                        label="Destination"
-                        map={map}
-                        mapApi={mapApi}
-                        error={formik.touched.address && Boolean(formik.errors.address)}
-                        errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
-                        onChange={handleDestinationChange}
+                </Box>
+                <Box sx={{pt: 1, pb: 1}}>
+                    <DateTimePicker
+                        label="Estimated Time of Arrival"
+                        value={formik.values.eta}
+                        ampm={false}
+                        inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
+                        onChange={(value) => formik.setFieldValue('eta', value)}
+                        renderInput={(params) => (
+                            <TextField {...params} fullWidth/>
+                        )}
                     />
-                    <Box sx={{pt: 4, pb: 1}}>
-                        <DateTimePicker
-                            label="Estimated Time of Departure"
-                            value={formik.values.etd}
-                            ampm={false}
-                            inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
-                            onChange={(value) => formik.setFieldValue('etd', value)}
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth />
-                            )}
-                        />
-                    </Box>
-                    <Box sx={{pt: 1, pb: 1}}>
-                        <DateTimePicker
-                            label="Estimated Time of Arrival"
-                            value={formik.values.eta}
-                            ampm={false}
-                            inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
-                            onChange={(value) => formik.setFieldValue('eta', value)}
-                            renderInput={(params) => (
-                                <TextField {...params} fullWidth/>
-                            )}
-                        />
-                    </Box>
-                    <Box sx={{display: 'flex', justifyContent: 'flex-end', pt: 2}}>
-                        <Button variant={"contained"} size="small" type="submit">Create Convoy</Button>
-                    </Box>
-                </form>
+                </Box>
+                <Box sx={{display: 'flex', justifyContent: 'flex-end', pt: 2}}>
+                    <Button variant={"contained"} size="small" type="submit">Create Convoy</Button>
+                </Box>
             </Box>
         </React.Fragment>
-
     );
 }

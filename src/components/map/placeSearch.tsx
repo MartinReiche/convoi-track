@@ -82,7 +82,6 @@ export default function PlaceSearch({id, label, mapApi, map, error, errorMessage
             disablePortal
             id="combo-box-demo"
             options={searchResults || []}
-            sx={{width: 300}}
             onChange={handleSelectPlace}
             filterOptions={(options) => options}
             renderOption={(props, option) => {
