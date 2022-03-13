@@ -9,7 +9,9 @@ export function Loading({ open }: InferProps<typeof Loading.propTypes>) {
             sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
             open={open}
         >
-            <CircularProgress color="secondary" />
+            <CircularProgress sx={{
+                color: (theme) => theme.palette.mode === 'dark' ? theme.palette.primary.main : 'white'
+            }} />
         </Backdrop>
     )
 }

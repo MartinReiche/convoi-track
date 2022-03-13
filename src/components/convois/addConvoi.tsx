@@ -1,71 +1,86 @@
 import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import DateTimePicker from '@mui/lab/MobileDateTimePicker';
 import * as yup from "yup";
 import {useFormik} from "formik";
-import getFirebase from "../../utils/getFirebase";
-import {addDoc, collection} from "firebase/firestore";
-import {useAuth} from "../auth/authProvider";
+// import getFirebase from "../../utils/getFirebase";
+// import {addDoc, collection} from "firebase/firestore";
+// import {useAuth} from "../auth/authProvider";
+import Box from '@mui/material/Box';
+import PlaceSearch from "../map/placeSearch";
+import Loading from '../loading';
+
 
 const validationSchema = yup.object({
-    name: yup
-        .string()
-        .required('Name is required'),
-    email: yup
-        .string()
-        .email('Enter a valid email')
-        .required('Email is required'),
-    etd: yup
-        .number()
-        .required()
+    name: yup.string().required('Name is required'),
+    address: yup.string().required("Destination Address is required"),
+    etd: yup.date().required(),
+    eta: yup.date().required(),
 });
 
-export default function AddConvoi() {
-    const [loading, setLoading] = React.useState(false);
-    const {user} = useAuth();
+type AddConvoiProps = {
+    map: google.maps.Map | undefined,
+    mapApi: typeof google.maps | undefined,
+    onDestinationChange: (place: google.maps.places.PlaceResult|null) => void
+}
+
+export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiProps) {
+    const [loading] = React.useState(false);
+    // const {user} = useAuth();
+    const [destination, setDestination] = React.useState<google.maps.places.PlaceResult | null>();
 
 
     const formik = useFormik({
         initialValues: {
             name: '',
-            email: '',
-            etd: new Date()
+            address: '',
+            etd: undefined,
+            eta: new Date(),
         },
         validationSchema: validationSchema,
-        onSubmit: async ({email, name}) => {
-            const {db} = getFirebase();
-            setLoading(true);
-            try {
-                const requestRef = await addDoc(collection(db, `projects/${user.project}/addOrgaRequest`), {
-                    name,
-                    email,
-                    host: window.location.protocol + '//' + window.location.host + '/',
-                });
-            } catch (e: any) {
-                setLoading(false);
-                // setAlert({ severity: 'error', message: 'Something went wrong. Please try again later.'});
-            }
+        onSubmit: async ({address, name, etd, eta}) => {
+            console.log("name", name)
+            console.log("address", address)
+            console.log("etd", etd)
+            console.log("eta", eta)
+            console.log("place name", destination?.name)
+            console.log("place id", destination?.place_id)
+            console.log("place lat", destination?.geometry?.location?.lat())
+            console.log("place lng", destination?.geometry?.location?.lng())
+
+            // const {db} = getFirebase();
+            // // setLoading(true);
+            // try {
+            //     await addDoc(collection(db, `projects/${user.project}/addOrgaRequest`), {
+            //         name,
+            //         destination,
+            //         host: window.location.protocol + '//' + window.location.host + '/',
+            //     });
+            // } catch (e: any) {
+            //     // setLoading(false);
+            //     // setAlert({ severity: 'error', message: 'Something went wrong. Please try again later.'});
+            // }
         },
     });
 
+    const handleDestinationChange = (place: google.maps.places.PlaceResult | null) => {
+        if (place) {
+            formik.setFieldValue('address', place.formatted_address);
+            setDestination(place);
+            onDestinationChange(place);
+        } else {
+            formik.setFieldValue('address', '');
+            setDestination(null);
+            onDestinationChange(null);
+        }
+    }
+
     return (
-        <Card sx={{
-            position: 'absolute',
-            top: '10px',
-            left: '10px',
-            mr: '10px',
-            mb: '10px',
-            maxWidth: 500,
-            zIndex: 1,
-        }}>
-            <form onSubmit={formik.handleSubmit}>
-                <CardHeader title="Add a new Convoy"/>
-                <CardContent>
+        <React.Fragment>
+            <Loading open={loading} />
+            <Box sx={{p: 2, display: 'flex'}}>
+                <form onSubmit={formik.handleSubmit}>
                     <TextField
                         autoFocus
                         margin="dense"
@@ -79,32 +94,45 @@ export default function AddConvoi() {
                         error={formik.touched.name && Boolean(formik.errors.name)}
                         helperText={formik.touched.name && formik.errors.name && formik.errors.name}
                     />
-                    <TextField
-                        margin="dense"
-                        id="email"
-                        label="Email Address"
-                        type="email"
-                        fullWidth
-                        variant="outlined"
-                        value={formik.values.email}
-                        onChange={formik.handleChange}
-                        error={formik.touched.email && Boolean(formik.errors.email)}
-                        helperText={formik.touched.email && formik.errors.email && formik.errors.email}
+                    <PlaceSearch
+                        id="address"
+                        label="Destination"
+                        map={map}
+                        mapApi={mapApi}
+                        error={formik.touched.address && Boolean(formik.errors.address)}
+                        errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
+                        onChange={handleDestinationChange}
                     />
-                    <DateTimePicker
-                        label="Date&Time picker"
-                        value={formik.values.etd}
-                        onChange={(value) => formik.setFieldValue('etd', value)}
-                        renderInput={(params) => (
-                            <TextField {...params} fullWidth id="etd"/>
-                        )}
-                    />
-                </CardContent>
-                <CardActions sx={{justifyContent: 'flex-end'}}>
-                    <Button variant={"contained"} size="small" type="submit">Create Convoy</Button>
-                </CardActions>
-            </form>
-        </Card>
+                    <Box sx={{pt: 4, pb: 1}}>
+                        <DateTimePicker
+                            label="Estimated Time of Departure"
+                            value={formik.values.etd}
+                            ampm={false}
+                            inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
+                            onChange={(value) => formik.setFieldValue('etd', value)}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth />
+                            )}
+                        />
+                    </Box>
+                    <Box sx={{pt: 1, pb: 1}}>
+                        <DateTimePicker
+                            label="Estimated Time of Arrival"
+                            value={formik.values.eta}
+                            ampm={false}
+                            inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
+                            onChange={(value) => formik.setFieldValue('eta', value)}
+                            renderInput={(params) => (
+                                <TextField {...params} fullWidth/>
+                            )}
+                        />
+                    </Box>
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end', pt: 2}}>
+                        <Button variant={"contained"} size="small" type="submit">Create Convoy</Button>
+                    </Box>
+                </form>
+            </Box>
+        </React.Fragment>
 
     );
 }

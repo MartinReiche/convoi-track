@@ -2,18 +2,27 @@ import * as React from 'react';
 import GoogleMapReact from 'google-map-react';
 import useCurrentLocation from "../utils/useCurrentLocation";
 import AlertBar, {Alert} from "../components/alert";
-import MyLocationIcon from "@mui/icons-material/MyLocation";
-import MapMarker from "../components/map/mapMarker";
 import AddConvoi from "../components/convois/addConvoi";
 import useMapColorModeStyles from "../components/map/useMapColorModeStyles";
+import Destination from "../components/map/components/goal";
+import Fab from "@mui/material/Fab";
+import Box from "@mui/material/Box";
+import ArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import ArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import Drawer from '@mui/material/Drawer';
 
 const DEFAULT_ZOOM = 13;
 const DEFAULT_CENTER = {lat: 52.5200, lng: 13.4050}
 
 const NewConvoi = () => {
+    const [open, setOpen] = React.useState(true);
     const [center, setCenter] = React.useState(DEFAULT_CENTER);
-    const [zoom, setZoom] = React.useState(DEFAULT_ZOOM);
+    const [zoom] = React.useState(DEFAULT_ZOOM);
     const [apiLoaded, setApiLoaded] = React.useState(false);
+    const [map, setMap] = React.useState<google.maps.Map>();
+    const [mapApi, setMapApi] = React.useState<typeof google.maps>();
+    const [destination, setDestination] = React.useState<google.maps.places.PlaceResult|null>()
+
     const {location, locationError} = useCurrentLocation();
     const {mapStyles, mapBackgroundColor} = useMapColorModeStyles();
     const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
@@ -25,19 +34,55 @@ const NewConvoi = () => {
         if (locationError) setAlert({severity: 'error', message: locationError.message});
     }, [location, locationError, apiLoaded]);
 
-    const handleApiLoaded = (map: any, maps: any) => {
+    const handleApiLoaded = (map: google.maps.Map, maps: typeof google.maps) => {
         setApiLoaded(true);
+        setMap(map);
+        setMapApi(maps);
     }
 
-    const handleMapChange = (e: GoogleMapReact.ChangeEventValue) => {
-        // console.log(e);
+    // const handleMapChange = (e: GoogleMapReact.ChangeEventValue) => {
+    //     // console.log(e);
+    // }
+
+    const toggleMenuOpen = () => {
+        setOpen(prev => !prev);
+    }
+
+    const handleDestinationChange = (place: google.maps.places.PlaceResult | null) => {
+        if (place && place.geometry?.location) {
+            setDestination(place);
+            map?.setCenter(place.geometry.location);
+            map?.setZoom(17);
+        } else {
+            console.log("CLEAR PARENT")
+            setDestination(null);
+            if (location) map?.setCenter({lat: location.lat, lng: location.lng});
+            else map?.setCenter(DEFAULT_CENTER);
+            map?.setZoom(DEFAULT_ZOOM);
+        }
     }
 
     return (
         <React.Fragment>
-            <AddConvoi/>
+            <Drawer
+                open={open}
+                hideBackdrop={true}
+                variant="persistent"
+            >
+                <Box sx={{pt: '74px', position: 'relative'}}>
+                    <AddConvoi map={map} mapApi={mapApi} onDestinationChange={handleDestinationChange} />
+                </Box>
+            </Drawer>
+            <Box sx={{position: 'absolute', bottom: 40, left: 10, zIndex: (theme) => theme.zIndex.drawer}}>
+                <Fab onClick={toggleMenuOpen} color="primary">
+                    {open ?
+                        <ArrowLeftIcon sx={{fontSize: 40}}/>
+                        : <ArrowRightIcon sx={{fontSize: 40}}/>
+                    }
+                </Fab>
+            </Box>
             <GoogleMapReact
-                bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}}
+                bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '', libraries: 'places', language: 'en'}}
                 center={center}
                 zoom={zoom}
                 yesIWantToUseGoogleMapApiInternals
@@ -52,13 +97,15 @@ const NewConvoi = () => {
                     styles: mapStyles,
                     backgroundColor: mapBackgroundColor
                 })}
-                onChange={handleMapChange}
+                // onChange={handleMapChange}
             >
-                {!!location && (
-                    <MapMarker lat={location.lat} lng={location.lng}>
-                        <MyLocationIcon color="error" sx={{fontSize: 30}}/>
-                    </MapMarker>
+                {!!destination && (
+                    <Destination
+                        lat={destination.geometry?.location?.lat()}
+                        lng={destination.geometry?.location?.lng()}
+                    />
                 )}
+                {/*{!!location && (<MyLocation lat={location.lat} lng={location.lng}/>)}*/}
             </GoogleMapReact>
             <AlertBar {...alert} />
         </React.Fragment>

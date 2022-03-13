@@ -24,7 +24,8 @@ function useCurrentLocation() {
                         heading: pos.coords.heading,
                     })
                 },
-                () => {
+                (e) => {
+                    console.log(e)
                     setLocationError(new Error("Could not get your location. Check if the browser blocks geolocation"));
                 })
             return function cleanUp() {

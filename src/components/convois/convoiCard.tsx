@@ -9,10 +9,9 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import GoogleMapReact from "google-map-react";
-import MarkerIcon from '@mui/icons-material/Room';
 import {Link} from "react-router-dom";
 import {Timestamp} from 'firebase/firestore';
-import MapMarker from "../map/mapMarker";
+import Goal from "../map/components/goal";
 
 type Convoi = {
     id: string;
@@ -105,9 +104,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                                 fullscreenControl: false
                             })}
                         >
-                            <MapMarker lat={convoi.to.latitude} lng={convoi.to.longitude}>
-                                <MarkerIcon color="error" sx={{fontSize: 40}}/>
-                            </MapMarker>
+                            <Goal lat={convoi.to.latitude} lng={convoi.to.longitude} />
                         </GoogleMapReact>
                     </CardMedia>
                 </Grid>
