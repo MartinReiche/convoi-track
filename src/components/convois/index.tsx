@@ -19,12 +19,15 @@ import {grey} from "@mui/material/colors";
 
 const PAGE_SIZE = 4;
 
-interface Convoi {
-    id: string,
-    name: string,
-    etd: Timestamp,
-    eta: Timestamp,
-    to: GeoPoint
+export type Convoi = {
+    id: string
+    name: string
+    destName: string
+    destAddress: string
+    destCoords: GeoPoint
+    destId: string
+    etd: Timestamp
+    eta: Timestamp
 }
 
 export function Convois() {
@@ -68,12 +71,12 @@ export function Convois() {
     if (loading) return <Loading open={true}/>
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
-            <Card sx={(theme) => ({ backgroundColor: theme.palette.mode === 'dark' ? grey[900] : grey[200] })}>
+            <Card sx={(theme) => ({backgroundColor: theme.palette.mode === 'dark' ? grey[900] : grey[200]})}>
                 <CardHeader title="Manage Convoys"/>
                 <CardContent>
                     <Stack spacing={2}>
                         {convoisOnPage.map((convoi) => (
-                            <ConvoiCard key={convoi.id} convoi={convoi} />
+                            <ConvoiCard key={convoi.id} convoi={convoi}/>
                         ))}
                     </Stack>
                 </CardContent>

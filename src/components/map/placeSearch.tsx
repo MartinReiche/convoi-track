@@ -2,12 +2,12 @@ import * as React from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from "@mui/material/TextField";
 import debounce from 'lodash.debounce'
+import {GoogleMapsApi} from "./index";
 
 type PlaceSearchProps = {
     id: string,
     label: string,
-    map: google.maps.Map | undefined,
-    mapApi: typeof google.maps | undefined,
+    googleMapsApi: GoogleMapsApi | undefined
     error: boolean | undefined,
     errorMessage: string | false | undefined,
     onChange: (place: google.maps.places.PlaceResult | null) => void,
@@ -18,19 +18,19 @@ type SearchResults = {
     place_id: string
 }
 
-export default function PlaceSearch({id, label, mapApi, map, error, errorMessage, onChange}: PlaceSearchProps) {
+export default function PlaceSearch({id, label, googleMapsApi, error, errorMessage, onChange}: PlaceSearchProps) {
     const [AutoCompleteService, setAutoCompleteService] = React.useState<google.maps.places.AutocompleteService>();
     const [PlaceService, setPlaceService] = React.useState<google.maps.places.PlacesService>();
     const [search, setSearch] = React.useState('');
     const [searchResults, setSearchResults] = React.useState<SearchResults[]>([]);
 
     React.useEffect(() => {
-        if (mapApi?.places && map) {
-            // intialize AutoCompleteService
-            setAutoCompleteService(new mapApi.places.AutocompleteService());
-            setPlaceService(new mapApi.places.PlacesService(map));
+        if (googleMapsApi) {
+            // intialize AutoCompleteService & PlaceService
+            setAutoCompleteService(new googleMapsApi.maps.places.AutocompleteService());
+            setPlaceService(new googleMapsApi.maps.places.PlacesService(googleMapsApi.map));
         }
-    }, [mapApi?.places, map])
+    }, [googleMapsApi])
 
     // Debounced places Prediction
     const getPlacePredictions = React.useMemo(
@@ -79,6 +79,7 @@ export default function PlaceSearch({id, label, mapApi, map, error, errorMessage
 
     return (
         <Autocomplete
+            disabled={!AutoCompleteService || !PlaceService}
             disablePortal
             id="combo-box-demo"
             options={searchResults || []}

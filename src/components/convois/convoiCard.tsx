@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {GeoPoint} from "firebase/firestore";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -8,18 +7,11 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import GoogleMapReact from "google-map-react";
 import {Link} from "react-router-dom";
 import {Timestamp} from 'firebase/firestore';
 import Goal from "../map/components/goal";
-
-type Convoi = {
-    id: string;
-    name: string;
-    etd: Timestamp;
-    eta: Timestamp;
-    to: GeoPoint;
-}
+import Map, {GoogleMapsApi} from "../map";
+import { Convoi } from '.';
 
 const DEFAULT_ZOOM = 11;
 
@@ -35,15 +27,17 @@ const toDateString = (date: Timestamp) => {
 }
 
 function ConvoiCard({convoi}: { convoi: Convoi }) {
-    const [address, setAddress] = React.useState<string>();
+    // const [address, setAddress] = React.useState<string>();
+    const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
 
-
-    // load Google Maps Api and reverse geocode the address of the convoi destination
-    const handleApiLoaded = async (map: any, maps: any) => {
-        const geoCoder = new maps.Geocoder();
-        const addresses = await geoCoder.geocode({location: {lat: convoi.to.latitude, lng: convoi.to.longitude}});
-        setAddress(addresses.results[0].formatted_address || '');
-    }
+    React.useEffect(() => {
+        if (googleMapsApi) {
+           googleMapsApi.map.setCenter({
+               lat: convoi.destCoords.latitude,
+               lng: convoi.destCoords.longitude
+           })
+        }
+    }, [googleMapsApi, convoi.destCoords])
 
     return (
         <Card>
@@ -53,16 +47,14 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                         <Typography variant="h6">
                             {convoi.name}
                         </Typography>
-                        {!!address && (
-                            <Box>
-                                <Typography variant="subtitle1" color="primary" component="span" fontWeight="bold">
-                                    To:
-                                </Typography>
-                                <Typography variant="subtitle1" color="text.secondary" component="span">
-                                    {` ${address}`}
-                                </Typography>
-                            </Box>
-                        )}
+                        <Box>
+                            <Typography variant="subtitle1" color="primary" component="span" fontWeight="bold">
+                                To:
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary" component="span">
+                                {` ${convoi.destAddress}`}
+                            </Typography>
+                        </Box>
                         <Box>
                             <Typography variant="subtitle1" color="primary" component="span" fontWeight="bold">
                                 Departure:
@@ -89,23 +81,12 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
 
                 <Grid item xs={12} sm={5}>
                     <CardMedia sx={{height: '100%', minHeight: 200}}>
-                        <GoogleMapReact
-                            bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}}
-                            center={{lat: convoi.to.latitude, lng: convoi.to.longitude}}
-                            zoom={DEFAULT_ZOOM}
-                            yesIWantToUseGoogleMapApiInternals
-                            onGoogleApiLoaded={({map, maps}) => handleApiLoaded(map, maps)}
-                            options={() => ({
-                                zoomControl: false,
-                                mapTypeControl: false,
-                                scaleControl: false,
-                                streetViewControl: false,
-                                rotateControl: false,
-                                fullscreenControl: false
-                            })}
+                        <Map
+                            defaultZoom={DEFAULT_ZOOM}
+                            onApiLoaded={setGoogleMapsApi}
                         >
-                            <Goal lat={convoi.to.latitude} lng={convoi.to.longitude} />
-                        </GoogleMapReact>
+                            <Goal lat={convoi.destCoords.latitude} lng={convoi.destCoords.longitude}/>
+                        </Map>
                     </CardMedia>
                 </Grid>
             </Grid>

@@ -10,7 +10,7 @@ import {useFormik} from "formik";
 import Box from '@mui/material/Box';
 import PlaceSearch from "../map/placeSearch";
 import Loading from '../loading';
-
+import {GoogleMapsApi} from "../map";
 
 const validationSchema = yup.object({
     name: yup.string().required('Name is required'),
@@ -20,12 +20,11 @@ const validationSchema = yup.object({
 });
 
 type AddConvoiProps = {
-    map: google.maps.Map | undefined,
-    mapApi: typeof google.maps | undefined,
+    googleMapsApi?: GoogleMapsApi
     onDestinationChange: (place: google.maps.places.PlaceResult | null) => void
 }
 
-export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiProps) {
+export default function AddConvoi({googleMapsApi, onDestinationChange}: AddConvoiProps) {
     const [loading] = React.useState(false);
     // const {user} = useAuth();
     const [destination, setDestination] = React.useState<google.maps.places.PlaceResult | null>();
@@ -99,8 +98,7 @@ export default function AddConvoi({mapApi, map, onDestinationChange}: AddConvoiP
                 <PlaceSearch
                     id="address"
                     label="Destination"
-                    map={map}
-                    mapApi={mapApi}
+                    googleMapsApi={googleMapsApi}
                     error={formik.touched.address && Boolean(formik.errors.address)}
                     errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
                     onChange={handleDestinationChange}

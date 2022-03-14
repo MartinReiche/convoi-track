@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
-
 const host = "http://localhost:3000/";
 
 const admins = [
@@ -20,9 +19,12 @@ const orga = [
 const convois = [
   {
     name: "Convoi to Uzhgorod #1",
+    destName: "Vyšné Nemecké",
+    destAddress: "072 51, Slovakia, Vyšné Nemecké",
+    destCoords: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+    destId: "NOT_A_REAL_DESTINATION_ID",
     etd: new Date("2022-03-17T12:00:00"),
     eta: new Date("2022-04-17T14:00:00"),
-    to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
     cars: [
       {
         name: "Tim & Anna",
@@ -71,10 +73,13 @@ const convois = [
     ],
   },
   {
-    name: "Convoi to Uzhgorod #2",
-    etd: new Date("2022-04-17T12:00:00"),
-    eta: new Date("2022-05-17T14:00:00"),
-    to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+    name: "Convoi to Uzhgorod #1",
+    destName: "Vyšné Nemecké",
+    destAddress: "072 51, Slovakia, Vyšné Nemecké",
+    destCoords: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+    destId: "NOT_A_REAL_DESTINATION_ID",
+    etd: new Date("2022-03-17T12:00:00"),
+    eta: new Date("2022-04-17T14:00:00"),
     orga: [
       {email: "nora@mission-lifeline.de", name: "Nora"},
     ],
@@ -121,9 +126,12 @@ export const createFixtures = functions
             .add({
               project: project.id,
               name: convoi.name,
+              destName: convoi.destName,
+              destAddress: convoi.destAddress,
+              destId: convoi.destId,
+              destCoords: convoi.destCoords,
               etd: convoi.etd,
               eta: convoi.eta,
-              to: convoi.to,
             });
 
         // create cars
