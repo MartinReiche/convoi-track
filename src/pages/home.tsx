@@ -1,12 +1,13 @@
 import * as React from "react";
 import {useAuth} from "../components/auth/authProvider";
-import Dashboard from "./dashboard";
+import ProjectDashboard from "./projectDashboard";
+import AdminDashboard from "./adminDashboard";
 
 export function Home() {
     const {user} = useAuth();
-    // welcome page for unauth
     if (user.role === 'driver') return <div>Home</div>
-    if (user.role === 'admin' || user.role === 'orga') return <Dashboard />
+    if (user.role === 'project-admin' || user.role === 'orga') return <ProjectDashboard />
+    if (user.role === 'admin') return <AdminDashboard />
     return null;
 }
 

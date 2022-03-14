@@ -25,12 +25,12 @@ export default function PlaceSearch({id, label, mapApi, map, error, errorMessage
     const [searchResults, setSearchResults] = React.useState<SearchResults[]>([]);
 
     React.useEffect(() => {
-        if (mapApi && map) {
+        if (mapApi?.places && map) {
             // intialize AutoCompleteService
             setAutoCompleteService(new mapApi.places.AutocompleteService());
             setPlaceService(new mapApi.places.PlacesService(map));
         }
-    }, [mapApi, map])
+    }, [mapApi?.places, map])
 
     // Debounced places Prediction
     const getPlacePredictions = React.useMemo(

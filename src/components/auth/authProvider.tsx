@@ -3,12 +3,14 @@ import PropTypes, {InferProps} from "prop-types";
 import {onAuthStateChanged, getIdTokenResult, signOut} from 'firebase/auth';
 import getFirebase from "../../utils/getFirebase";
 
+type Role = 'driver' | 'orga' | 'project-admin' | 'admin';
+
 type User = {
     email?: string
     name?: string
     isAuthenticated: boolean
-    loading: boolean,
-    role?: 'driver' | 'orga' | 'admin'
+    loading: boolean
+    role?: Role
     project?: string
     convoi?: string
     car?: string
@@ -40,7 +42,7 @@ export function AuthProvider({children}: InferProps<typeof AuthProvider.propType
                     email: user.email as string,
                     name: user.displayName as string,
                     isAuthenticated: true,
-                    role: idTokenResult.claims.role as 'driver' | 'orga' | 'admin',
+                    role: idTokenResult.claims.role as Role,
                     project: idTokenResult.claims.project as string,
                     convoi: idTokenResult.claims.convoi as string,
                     car: idTokenResult.claims.car as string,

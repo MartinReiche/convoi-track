@@ -94,7 +94,7 @@ export function Convois() {
                             )}
                         </Grid>
                         <Grid item>
-                            {user.role === 'admin' && (
+                            {(user.role === 'admin' || user.role === 'project-admin') && (
                                 <Link to={`/convoys/new`} style={{textDecoration: 'none'}}>
                                     <Button variant="contained">Add Convoy</Button>
                                 </Link>

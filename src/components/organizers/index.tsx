@@ -87,7 +87,7 @@ export function Organizers() {
                             )}
                         </Grid>
                         <Grid item >
-                            {user.role === 'admin' && <AddOrganizer />}
+                            {(user.role === 'admin' || user.role === 'project-admin') && <AddOrganizer />}
                         </Grid>
                     </Grid>
                 </CardActions>

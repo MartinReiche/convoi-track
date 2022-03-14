@@ -4,15 +4,15 @@ import Organizers from "../components/organizers";
 import {useAuth} from "../components/auth/authProvider";
 import Convois from "../components/convois";
 
-export function Dashboard() {
+export function ProjectDashboard() {
     const {user} = useAuth();
 
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
-            {(user.role === 'admin' || user.role === 'orga') && <Convois />}
-            {user.role === 'admin' && <Organizers />}
+            {(user.role === 'project-admin' || user.role === 'orga') && <Convois />}
+            {user.role === 'project-admin' && <Organizers />}
         </Container>
     )
 }
 
-export default Dashboard;
+export default ProjectDashboard;

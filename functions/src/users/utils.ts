@@ -34,12 +34,12 @@ export const addUser = async ({snap, userRecordCollection, claims}: addUserParam
   }
 };
 
-export const createUser = async (email: string, nameIfNew: string) => {
+export const createUser = async (email: string, name: string) => {
   return admin.auth()
       .createUser({
         email: email,
         emailVerified: true,
-        displayName: nameIfNew,
+        displayName: name,
         disabled: false,
       });
 };

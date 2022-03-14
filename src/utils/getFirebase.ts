@@ -2,6 +2,7 @@ import {getApps, getApp, initializeApp} from 'firebase/app';
 import {initializeAppCheck, ReCaptchaV3Provider} from 'firebase/app-check';
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 export function getFirebase() {
     if (getApps().length === 0) {
@@ -31,17 +32,20 @@ export function getFirebase() {
         // init DB, Auth
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const functions = getFunctions(app);
         if (process.env.NODE_ENV === 'development') {
             connectFirestoreEmulator(db, 'localhost', 8080);
             connectAuthEmulator(auth, "http://localhost:9099/");
+            connectFunctionsEmulator(functions,'localhost', 5001);
         }
         // return all
-        return { db, auth }
+        return { db, auth, functions }
     } else {
         const app = getApp();
         const db = getFirestore(app);
         const auth = getAuth(app);
-        return { db, auth };
+        const functions = getFunctions(app);
+        return { db, auth, functions };
     }
 
 }

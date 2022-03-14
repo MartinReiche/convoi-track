@@ -10,6 +10,12 @@ import MapMenu from "../components/map/mapMenu";
 const DEFAULT_ZOOM = 13;
 const DEFAULT_CENTER = {lat: 52.5200, lng: 13.4050}
 
+type MenuState = {
+    lat?: number,
+    lng?: number,
+    open: boolean
+}
+
 const NewConvoi = () => {
     const [open, setOpen] = React.useState(true);
     const [center, setCenter] = React.useState(DEFAULT_CENTER);
@@ -18,6 +24,7 @@ const NewConvoi = () => {
     const [map, setMap] = React.useState<google.maps.Map>();
     const [mapApi, setMapApi] = React.useState<typeof google.maps>();
     const [destination, setDestination] = React.useState<google.maps.places.PlaceResult|null>()
+    const [menuState, setMenuState] = React.useState<MenuState>({open: false});
 
     const {location, locationError} = useCurrentLocation();
     const {mapStyles, mapBackgroundColor} = useMapColorModeStyles();
@@ -30,15 +37,17 @@ const NewConvoi = () => {
         if (locationError) setAlert({severity: 'error', message: locationError.message});
     }, [location, locationError, apiLoaded]);
 
+
     const handleApiLoaded = (map: google.maps.Map, maps: typeof google.maps) => {
         setApiLoaded(true);
         setMap(map);
         setMapApi(maps);
+        // map.addListener("click", handleMapClicked)
     }
 
-    // const handleMapChange = (e: GoogleMapReact.ChangeEventValue) => {
-    //     // console.log(e);
-    // }
+    const handleMapClicked = (e: GoogleMapReact.ClickEventValue) => {
+        setMenuState(prev => ({lat: e.lat, lng: e.lng, open: !prev.open}))
+    }
 
     const toggleMenuOpen = () => {
         setOpen(prev => !prev);
@@ -76,9 +85,9 @@ const NewConvoi = () => {
                     rotateControl: false,
                     fullscreenControl: false,
                     styles: mapStyles,
-                    backgroundColor: mapBackgroundColor
+                    backgroundColor: mapBackgroundColor,
                 })}
-                // onChange={handleMapChange}
+                onClick={handleMapClicked}
             >
                 {!!destination && (
                     <Destination
@@ -86,7 +95,7 @@ const NewConvoi = () => {
                         lng={destination.geometry?.location?.lng()}
                     />
                 )}
-                {/*{!!location && (<MyLocation lat={location.lat} lng={location.lng}/>)}*/}
+                {menuState.open && <Destination lat={menuState.lat} lng={menuState.lng}/>}
             </GoogleMapReact>
             <AlertBar {...alert} />
         </React.Fragment>

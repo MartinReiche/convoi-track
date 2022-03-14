@@ -6,11 +6,11 @@ import RequireUnauth from "./components/gates/requireUnauth";
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Home from "./pages/home";
 import NotFound from "./pages/notFound";
-import Map from "./components/map";
 import AuthProvider from "./components/auth/authProvider";
 import NewConvoi from "./pages/newConvoi";
 import DateAdapter from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import AdminDashboard from "./pages/adminDashboard";
 
 function App() {
     return (
@@ -23,7 +23,7 @@ function App() {
                             <Route
                                 path="/"
                                 element={
-                                    <RequireAuth roles={['admin', 'orga', 'driver']}>
+                                    <RequireAuth roles={['project-admin', 'admin', 'orga', 'driver']}>
                                         <Home/>
                                     </RequireAuth>
                                 }
@@ -38,15 +38,24 @@ function App() {
                             />
                             <Route path="/convoys/new"
                                    element={
-                                       <RequireAuth roles={['admin', 'orga', 'driver']}>
-                                           <NewConvoi />
+                                       <RequireAuth roles={['project-admin', 'admin', 'orga', 'driver']}>
+                                           <NewConvoi/>
                                        </RequireAuth>
                                    }
                             />
                             <Route path="/convoys/:id"
                                    element={
-                                       <RequireAuth roles={['admin', 'orga', 'driver']}>
-                                           <Map/>
+                                       <RequireAuth roles={['project-admin', 'admin', 'orga', 'driver']}>
+                                           <div>
+                                               Convoi Page
+                                           </div>
+                                       </RequireAuth>
+                                   }
+                            />
+                            <Route path="/fixtures"
+                                   element={
+                                       <RequireAuth roles={['admin']}>
+                                          <AdminDashboard />
                                        </RequireAuth>
                                    }
                             />

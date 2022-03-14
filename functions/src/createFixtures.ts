@@ -69,8 +69,6 @@ const convois = [
         status: [],
       },
     ],
-
-
   },
   {
     name: "Convoi to Uzhgorod #2",
@@ -85,8 +83,19 @@ const convois = [
 ];
 
 export const createFixtures = functions
-    .region("europe-west1")
-    .https.onRequest(async (req: any, res: any) => {
+    .https.onCall(async (data, context) => {
+      // Only allow admin users to execute this function.
+      if (!(context.auth?.token?.role === "admin")) {
+        throw new functions.https.HttpsError(
+            "permission-denied",
+            "Must be an administrative user to create fixtures."
+        );
+      }
+
+      console.log(
+          `User ${context.auth.uid} has called function to create fixtures`
+      );
+
       // create Project
       const project = await admin.firestore().collection("projects").add({name: "Mission Lifeline"});
 
@@ -160,7 +169,7 @@ export const createFixtures = functions
         });
       });
 
-      return res.send("Fixtures created!");
+      return "Fixtures created!";
     });
 
 

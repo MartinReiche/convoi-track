@@ -2,8 +2,11 @@ rules_version = '2';
 service cloud.firestore {
     match /databases/{database}/documents {
         // Auth utility functions
-        function isAdmin(projectId) {
-            return request.auth.token.role == 'admin' && request.auth.token.project == projectId;
+        function isAdmin() {
+            return request.auth.token.role == 'admin';
+        }
+        function isProjectAdmin(projectId) {
+            return request.auth.token.role == 'project-admin' && request.auth.token.project == projectId;
         }
         function isOrga(projectId) {
             return request.auth.token.role == 'orga' && request.auth.token.project == projectId;
@@ -26,24 +29,24 @@ service cloud.firestore {
 
         // Requests to Add Orga Users
         match /projects/{projectId}/addOrgaRequest/{requestId} {
-            allow get: if isAdmin(projectId);
-            allow create: if isAdmin(projectId)
+            allow get: if isAdmin() || isProjectAdmin(projectId);
+            allow create: if isAdmin() || isProjectAdmin(projectId)
                              && request.resource.data.keys().hasOnly(['name', 'email', 'host'])
                              && request.resource.data.name is string
                              && request.resource.data.email is string;
         }
         // Orga Users
         match /projects/{projectId}/orga/{email} {
-            allow read: if isAdmin(projectId) || isOrga(projectId);
-            allow delete: if isAdmin(projectId);
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId);
+            allow delete: if isAdmin() || isProjectAdmin(projectId);
         }
 
         // Convois
         match /projects/{projectId}/convois/{convoiId} {
-            allow read: if isAdmin(projectId) || isOrga(projectId) || isConvoiDriver(projectId, convoiId);
-            allow create: if isAdmin(projectId) && isValidConvoi();
-            allow update: if (isAdmin(projectId) || isOrga(projectId)) && isValidConvoi();
-            allow delete: if isAdmin(projectId);
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) || isConvoiDriver(projectId, convoiId);
+            allow create: if isAdmin() || isProjectAdmin(projectId) && isValidConvoi();
+            allow update: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) && isValidConvoi();
+            allow delete: if isAdmin() || isProjectAdmin(projectId);
         }
 
         // Login Requests
