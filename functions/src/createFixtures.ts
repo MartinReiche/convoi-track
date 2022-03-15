@@ -19,71 +19,100 @@ const orga = [
 const convois = [
   {
     name: "Convoi to Uzhgorod #1",
-    destName: "Vyšné Nemecké",
-    destAddress: "072 51, Slovakia, Vyšné Nemecké",
-    destCoords: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
-    destId: "NOT_A_REAL_DESTINATION_ID",
+    destination: {
+      address: "072 51, Slovakia, Vyšné Nemecké",
+      location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+      date: new Date("2022-04-17T11:00:00"),
+    },
     etd: new Date("2022-03-17T12:00:00"),
-    eta: new Date("2022-04-17T14:00:00"),
+    createdAt: new Date("2022-03-15T12:00:00"),
     cars: [
       {
         name: "Tim & Anna",
         numberplate: "L-HC-1337",
         crew: 0,
         guests: 0,
-        from: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
-        to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
-        eta: new Date("2022-04-17T11:00:00"),
+        from: {
+          address: "Leipzig, Startadresse",
+          location: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+          date: new Date("2022-03-17T12:00:00"),
+        },
+        position: {
+          address: "Dreieck Nossen",
+          location: new admin.firestore.GeoPoint(51.05543338953122, 13.370823029736687),
+          date: new Date("2022-03-17T14:00:00"),
+        },
+        heading: {
+          address: "Deutsch-Tschechische Grenze",
+          location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+          date: new Date("2022-04-17T11:00:00"),
+        },
+        destination: {
+          address: "072 51, Slovakia, Vyšné Nemecké",
+          location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+          date: new Date("2022-04-17T11:00:00"),
+        },
+        updatedAt: new Date("2022-03-17T14:00:00"),
         drivers: [
           {name: "Anna", email: "anna@mail.com", phone: "1234-12345678"},
           {name: "Tim", email: "tim@mail.com", phone: "1234-12345678"},
         ],
         status: [
           {
-            pos: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
-            to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
-            eta: new Date("2022-04-17T10:30:00"),
-            date: new Date("2022-03-17T12:05:00"),
+            from: {
+              address: "Leipzig, Startadresse",
+              location: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+              date: new Date("2022-03-17T12:00:00"),
+            },
+            position: {
+              address: "Leipzig, Startadresse",
+              location: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+              date: new Date("2022-03-17T12:00:00"),
+            },
+            heading: {
+              address: "Deutsch-Tschechische Grenze",
+              location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+              date: new Date("2022-04-17T11:00:00"),
+            },
+            destination: {
+              address: "072 51, Slovakia, Vyšné Nemecké",
+              location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+              date: new Date("2022-04-17T11:00:00"),
+            },
             crew: 2,
             guests: 0,
             misc: "Start in Leipzig",
+            updatedAt: new Date("2022-03-17T12:00:00"),
           },
           {
-            pos: new admin.firestore.GeoPoint(51.17407848718044, 15.024802536254738),
-            to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
-            eta: new Date("2022-04-17T11:00:00"),
-            date: new Date("2022-03-17T14:45:00"),
+            from: {
+              address: "Deutsch-Tschechische Grenze",
+              location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+              date: new Date("2022-04-17T11:00:00"),
+            },
+            position: {
+              address: "Dreieck Nossen",
+              location: new admin.firestore.GeoPoint(51.05543338953122, 13.370823029736687),
+              date: new Date("2022-03-17T14:00:00"),
+            },
+            heading: {
+              address: "Deutsch-Tschechische Grenze",
+              location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+              date: new Date("2022-04-17T11:00:00"),
+            },
+            destination: {
+              address: "072 51, Slovakia, Vyšné Nemecké",
+              location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+              date: new Date("2022-04-17T11:00:00"),
+            },
             crew: 2,
             guests: 0,
-            misc: "Grenzübergtritt D -> PL",
+            misc: "Start in Leipzig",
+            updatedAt: new Date("2022-03-17T14:00:00"),
           },
         ],
       },
-      {
-        name: "Caroline & Sebastian",
-        numberplate: "L-HC-1337",
-        crew: 0,
-        guests: 0,
-        from: null,
-        to: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
-        eta: null,
-        drivers: [],
-        status: [],
-      },
     ],
-  },
-  {
-    name: "Convoi to Uzhgorod #1",
-    destName: "Vyšné Nemecké",
-    destAddress: "072 51, Slovakia, Vyšné Nemecké",
-    destCoords: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
-    destId: "NOT_A_REAL_DESTINATION_ID",
-    etd: new Date("2022-03-17T12:00:00"),
-    eta: new Date("2022-04-17T14:00:00"),
-    orga: [
-      {email: "nora@mission-lifeline.de", name: "Nora"},
-    ],
-    cars: [],
   },
 ];
 
@@ -97,9 +126,7 @@ export const createFixtures = functions
         );
       }
 
-      console.log(
-          `User ${context.auth.uid} has called function to create fixtures`
-      );
+      console.log(`User ${context.auth.uid} has called function to create fixtures`);
 
       // create Project
       const project = await admin.firestore().collection("projects").add({name: "Mission Lifeline"});
@@ -126,12 +153,8 @@ export const createFixtures = functions
             .add({
               project: project.id,
               name: convoi.name,
-              destName: convoi.destName,
-              destAddress: convoi.destAddress,
-              destId: convoi.destId,
-              destCoords: convoi.destCoords,
+              destination: convoi.destination,
               etd: convoi.etd,
-              eta: convoi.eta,
             });
 
         // create cars
@@ -147,7 +170,10 @@ export const createFixtures = functions
                 crew: car.crew,
                 guests: car.guests,
                 from: car.from,
-                to: car.to,
+                position: car.position,
+                heading: car.heading,
+                destination: car.destination,
+                updatedAt: car.updatedAt,
               });
 
           // create drivers

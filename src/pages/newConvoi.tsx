@@ -12,23 +12,23 @@ type MenuState = {
 type Place = google.maps.places.PlaceResult | google.maps.GeocoderResult | null;
 
 const NewConvoi = () => {
-    const [open, setOpen] = React.useState(true);
-    const [destination, setDestination] = React.useState<Place>()
-    const [menuState, setMenuState] = React.useState<MenuState>({open: false});
-    const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>()
+    const [drawerOpen, setDrawerOpen] = React.useState(true);
+    const [destination, setDestination] = React.useState<Place>();
+    const [mapMenuState, setMapMenuState] = React.useState<MenuState>({open: false});
+    const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
 
     const handleMapClicked = (e: GoogleMapReact.ClickEventValue) => {
-        setMenuState(prev => ({lat: e.lat, lng: e.lng, open: !prev.open}))
+        setMapMenuState(prev => ({lat: e.lat, lng: e.lng, open: !prev.open}))
     }
 
     const toggleMenuOpen = () => {
-        setOpen(prev => !prev);
+        setDrawerOpen(prev => !prev);
     }
 
     const handleDestinationChange = (place: Place) => {
         if (place && place.geometry?.location && googleMapsApi) {
             setDestination(place);
-            if (menuState.open) setMenuState({open: false});
+            if (mapMenuState.open) setMapMenuState({open: false});
             googleMapsApi.map.setCenter(place.geometry.location);
 
         } else if (googleMapsApi) {
@@ -38,7 +38,7 @@ const NewConvoi = () => {
 
     return (
         <React.Fragment>
-            <MapDrawer open={open} onToggleMenuOpen={toggleMenuOpen}>
+            <MapDrawer open={drawerOpen} onToggleMenuOpen={toggleMenuOpen}>
                 <AddConvoi
                     destination={destination}
                     googleMapsApi={googleMapsApi}
@@ -56,13 +56,13 @@ const NewConvoi = () => {
                         lng={destination.geometry?.location?.lng()}
                     />
                 )}
-                {menuState.open && (
+                {mapMenuState.open && (
                     <MapMenu
-                        lat={menuState.lat}
-                        lng={menuState.lng}
+                        lat={mapMenuState.lat}
+                        lng={mapMenuState.lng}
                         googleMapsApi={googleMapsApi}
                         onSetDestination={handleDestinationChange}
-                        onClose={() => setMenuState({ open: false })}
+                        onClose={() => setMapMenuState({ open: false })}
                     />
                 )}
             </Map>

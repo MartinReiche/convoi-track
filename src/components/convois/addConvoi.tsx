@@ -56,16 +56,18 @@ export default function AddConvoi({destination, googleMapsApi, onDestinationChan
             setLoading(true);
             try {
                 const convoiRef = await addDoc(collection(db, `projects/${user.project}/convois`), {
-                    name,
                     project: user.project,
+                    name,
+                    destination: {
+                        address: selectedDestination?.formatted_address,
+                        location: new GeoPoint(
+                            selectedDestination?.geometry?.location?.lat() as number,
+                            selectedDestination?.geometry?.location?.lng() as number,
+                        ),
+                        date: eta,
+                    },
                     etd,
-                    eta,
-                    destId: selectedDestination?.place_id,
-                    destAddress: selectedDestination?.formatted_address,
-                    destCoords: new GeoPoint(
-                        selectedDestination?.geometry?.location?.lat() as number,
-                        selectedDestination?.geometry?.location?.lng() as number,
-                    )
+                    createdAt: new Date(),
                 });
                 setLoading(false);
                 navigate(`/convoys/${convoiRef.id}`);

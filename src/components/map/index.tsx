@@ -42,17 +42,21 @@ const Map = (
         onLocationChange,
     }: MapProps) => {
     const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>()
+    const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
+    const [centeredInitially, setCenteredInitially] = React.useState(false);
     const {location, locationError} = useCurrentLocation();
     const {mapStyles, mapBackgroundColor} = useMapColorModeStyles();
-    const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
 
     React.useEffect(() => {
         if (googleMapsApi && location) {
-            if (centerLocationOnLoad) googleMapsApi.map.setCenter(location);
+            if (!centeredInitially && centerLocationOnLoad) {
+                googleMapsApi.map.setCenter(location);
+                setCenteredInitially(true)
+            }
             if (onLocationChange) onLocationChange(location);
         }
         if (locationError) setAlert({severity: 'error', message: locationError.message});
-    }, [location, locationError, googleMapsApi, onLocationChange, centerLocationOnLoad]);
+    }, [location, locationError, googleMapsApi, onLocationChange, centerLocationOnLoad, centeredInitially]);
 
     return (
         <React.Fragment>

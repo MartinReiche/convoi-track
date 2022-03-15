@@ -11,23 +11,21 @@ import Pagination from "@mui/material/Pagination"
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid";
-import {GeoPoint} from 'firebase/firestore';
 import ConvoiCard from "./convoiCard";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
 import {grey} from "@mui/material/colors";
+import {Location} from "../cars";
 
 const PAGE_SIZE = 4;
 
 export type Convoi = {
     id: string
+    project: string
     name: string
-    destName: string
-    destAddress: string
-    destCoords: GeoPoint
-    destId: string
+    destination: Location
     etd: Timestamp
-    eta: Timestamp
+    createdAt: Timestamp
 }
 
 export function Convois() {

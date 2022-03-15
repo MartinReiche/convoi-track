@@ -11,6 +11,7 @@ import NewConvoi from "./pages/newConvoi";
 import DateAdapter from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdminDashboard from "./pages/adminDashboard";
+import Convoi from "./pages/convoi";
 
 function App() {
     return (
@@ -46,9 +47,7 @@ function App() {
                             <Route path="/convoys/:id"
                                    element={
                                        <RequireAuth roles={['project-admin', 'admin', 'orga', 'driver']}>
-                                           <div>
-                                               Convoi Page
-                                           </div>
+                                          <Convoi />
                                        </RequireAuth>
                                    }
                             />

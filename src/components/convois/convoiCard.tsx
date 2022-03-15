@@ -33,11 +33,11 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
     React.useEffect(() => {
         if (googleMapsApi) {
            googleMapsApi.map.setCenter({
-               lat: convoi.destCoords.latitude,
-               lng: convoi.destCoords.longitude
+               lat: convoi.destination.location.latitude,
+               lng: convoi.destination.location.longitude
            })
         }
-    }, [googleMapsApi, convoi.destCoords])
+    }, [googleMapsApi, convoi.destination.location])
 
     return (
         <Card>
@@ -52,7 +52,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                                 To:
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="span">
-                                {` ${convoi.destAddress}`}
+                                {` ${convoi.destination.address}`}
                             </Typography>
                         </Box>
                         <Box>
@@ -68,7 +68,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                                 Arrival:
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="span">
-                                {` ${toDateString(convoi.eta)}`}
+                                {` ${toDateString(convoi.destination.date)}`}
                             </Typography>
                         </Box>
                     </CardContent>
@@ -85,7 +85,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                             defaultZoom={DEFAULT_ZOOM}
                             onApiLoaded={setGoogleMapsApi}
                         >
-                            <Destination lat={convoi.destCoords.latitude} lng={convoi.destCoords.longitude}/>
+                            <Destination lat={convoi.destination.location.latitude} lng={convoi.destination.location.longitude}/>
                         </Map>
                     </CardMedia>
                 </Grid>
