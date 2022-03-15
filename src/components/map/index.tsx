@@ -17,9 +17,7 @@ export type Location = {
     lng: number
 }
 
-export 
-
-interface MapProps {
+export interface MapProps {
     children?: React.ReactNode
     defaultZoom?: number
     defaultCenter?: Location

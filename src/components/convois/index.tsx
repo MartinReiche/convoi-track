@@ -1,7 +1,5 @@
 import * as React from "react";
 import Container from '@mui/material/Container';
-import {collection, query, onSnapshot, Timestamp} from "firebase/firestore";
-import getFirebase from "../../utils/getFirebase";
 import Loading from "../loading";
 import {useAuth} from "../auth/authProvider";
 import Stack from "@mui/material/Stack";
@@ -15,46 +13,25 @@ import ConvoiCard from "./convoiCard";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
 import {grey} from "@mui/material/colors";
-import {Location} from "../cars";
+import {Convoi} from "../../utils/convois"
+import {useConvois} from "../../utils/convois/";
 
-const PAGE_SIZE = 4;
-
-export type Convoi = {
-    id: string
-    project: string
-    name: string
-    destination: Location
-    etd: Timestamp
-    createdAt: Timestamp
-}
+const PAGE_SIZE = 5;
 
 export function Convois() {
     const [loading, setLoading] = React.useState(true);
-    const [convois, setConvois] = React.useState([] as Convoi[]);
     const [page, setPage] = React.useState(1);
     const [totalPages, setTotalPages] = React.useState(0);
     const [convoisOnPage, setConvoisOnPage] = React.useState<Convoi[]>([]);
     const {user} = useAuth();
+    const convois = useConvois();
 
     React.useEffect(() => {
-        const {db} = getFirebase();
-        const q = query(collection(db, `/projects/${user.project}/convois`));
-        const unsubscribe = onSnapshot(q, (snap) => {
+        if (convois) {
             setLoading(false);
-            const newConvois: Convoi[] = [];
-            snap.forEach(doc => {
-                newConvois.push({...doc.data(), id: doc.id} as Convoi);
-            })
-            setConvois(newConvois);
-            setTotalPages(Math.ceil(newConvois.length / PAGE_SIZE));
-        });
-        return function cleanUp() {
-            unsubscribe();
+            setTotalPages(Math.ceil(convois.length / PAGE_SIZE));
+            setConvoisOnPage(convois.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
         }
-    }, [user.project])
-
-    React.useEffect(() => {
-        setConvoisOnPage(convois.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
     }, [convois, page])
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, currentPage: number) => {
@@ -63,7 +40,7 @@ export function Convois() {
     }
 
     const changePage = (page: number) => {
-        setConvoisOnPage(convois.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
+        if (convois) setConvoisOnPage(convois.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
     }
 
     if (loading) return <Loading open={true}/>

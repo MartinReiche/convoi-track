@@ -11,7 +11,7 @@ import {Link} from "react-router-dom";
 import {Timestamp} from 'firebase/firestore';
 import Destination from "../map/components/destination";
 import Map, {GoogleMapsApi} from "../map";
-import { Convoi } from '.';
+import { Convoi } from '../../utils/convois';
 
 const DEFAULT_ZOOM = 11;
 
