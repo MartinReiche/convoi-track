@@ -13,7 +13,7 @@ interface MapMenuProps {
     onToggleMenuOpen: () => void
 }
 
-const MapMenu = ({children, open, onToggleMenuOpen}: MapMenuProps) => {
+export const MapDrawer = ({children, open, onToggleMenuOpen}: MapMenuProps) => {
     return (
         <React.Fragment>
             <Box sx={{ display: { xs: 'none', md: 'block'}}}>
@@ -59,4 +59,4 @@ const MapMenu = ({children, open, onToggleMenuOpen}: MapMenuProps) => {
     );
 }
 
-export default MapMenu;
+export default MapDrawer;

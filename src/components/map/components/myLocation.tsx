@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 
 
-function MyLocation() {
+export function MyLocation() {
     return (
         <Box>
             <MyLocationIcon color="error" sx={{fontSize: 30, transform: 'translate(-50%,-50%)'}}/>

@@ -4,13 +4,18 @@ import TextField from '@mui/material/TextField';
 import DateTimePicker from '@mui/lab/MobileDateTimePicker';
 import * as yup from "yup";
 import {useFormik} from "formik";
-// import getFirebase from "../../utils/getFirebase";
-// import {addDoc, collection} from "firebase/firestore";
-// import {useAuth} from "../auth/authProvider";
+import getFirebase from "../../utils/getFirebase";
+import {addDoc, collection} from "firebase/firestore";
+import {useAuth} from "../auth/authProvider";
 import Box from '@mui/material/Box';
-import PlaceSearch from "../map/placeSearch";
+import {PlaceSearch} from "../map";
 import Loading from '../loading';
 import {GoogleMapsApi} from "../map";
+import Chip from '@mui/material/Chip';
+import Typography from "@mui/material/Typography";
+import {GeoPoint} from 'firebase/firestore';
+import {useNavigate} from "react-router-dom";
+import AlertBar, {Alert} from "../alert";
 
 const validationSchema = yup.object({
     name: yup.string().required('Name is required'),
@@ -20,15 +25,23 @@ const validationSchema = yup.object({
 });
 
 type AddConvoiProps = {
+    destination?: Destination
     googleMapsApi?: GoogleMapsApi
     onDestinationChange: (place: google.maps.places.PlaceResult | null) => void
 }
 
-export default function AddConvoi({googleMapsApi, onDestinationChange}: AddConvoiProps) {
-    const [loading] = React.useState(false);
-    // const {user} = useAuth();
-    const [destination, setDestination] = React.useState<google.maps.places.PlaceResult | null>();
+type Destination = google.maps.places.PlaceResult | google.maps.GeocoderResult | null;
 
+export default function AddConvoi({destination, googleMapsApi, onDestinationChange}: AddConvoiProps) {
+    const [loading, setLoading] = React.useState(false);
+    const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
+    const [selectedDestination, setSelectedDestination] = React.useState<Destination>();
+    const {user} = useAuth();
+    const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (destination) setSelectedDestination(destination);
+    }, [destination])
 
     const formik = useFormik({
         initialValues: {
@@ -38,45 +51,61 @@ export default function AddConvoi({googleMapsApi, onDestinationChange}: AddConvo
             eta: new Date(),
         },
         validationSchema: validationSchema,
-        onSubmit: async ({address, name, etd, eta}) => {
-            console.log("name", name)
-            console.log("address", address)
-            console.log("etd", etd)
-            console.log("eta", eta)
-            console.log("place name", destination?.name)
-            console.log("place id", destination?.place_id)
-            console.log("place lat", destination?.geometry?.location?.lat())
-            console.log("place lng", destination?.geometry?.location?.lng())
-            // const {db} = getFirebase();
-            // // setLoading(true);
-            // try {
-            //     await addDoc(collection(db, `projects/${user.project}/addOrgaRequest`), {
-            //         name,
-            //         destination,
-            //         host: window.location.protocol + '//' + window.location.host + '/',
-            //     });
-            // } catch (e: any) {
-            //     // setLoading(false);
-            //     // setAlert({ severity: 'error', message: 'Something went wrong. Please try again later.'});
-            // }
+        onSubmit: async ({name, etd, eta}) => {
+            const {db} = getFirebase();
+            setLoading(true);
+            try {
+                const convoiRef = await addDoc(collection(db, `projects/${user.project}/convois`), {
+                    name,
+                    project: user.project,
+                    etd,
+                    eta,
+                    destId: selectedDestination?.place_id,
+                    destAddress: selectedDestination?.formatted_address,
+                    destCoords: new GeoPoint(
+                        selectedDestination?.geometry?.location?.lat() as number,
+                        selectedDestination?.geometry?.location?.lng() as number,
+                    )
+                });
+                setLoading(false);
+                navigate(`/convoys/${convoiRef.id}`);
+            } catch (e: any) {
+                console.log(e)
+                setLoading(false);
+                setAlert({severity: 'error', message: 'Something went wrong. Please try again later.'});
+            }
         },
     });
 
     const handleDestinationChange = (place: google.maps.places.PlaceResult | null) => {
         if (place) {
             formik.setFieldValue('address', place.formatted_address);
-            setDestination(place);
+            setSelectedDestination(place);
             onDestinationChange(place);
         } else {
-            formik.setFieldValue('address', '');
-            setDestination(null);
-            onDestinationChange(null);
+            clearDestination();
         }
     }
+
+    const handleClick = () => {
+        console.log("Clicked")
+        console.log(selectedDestination)
+        if (googleMapsApi && selectedDestination?.geometry?.location) {
+            googleMapsApi.map.setCenter(selectedDestination.geometry.location)
+        }
+    }
+
+    const clearDestination = () => {
+        formik.setFieldValue('address', '');
+        setSelectedDestination(null);
+        onDestinationChange(null);
+    }
+
 
     return (
         <React.Fragment>
             <Loading open={loading}/>
+            <AlertBar {...alert} />
             <Box
                 sx={{p: 2, display: 'flex', flexDirection: 'column', width: '100%'}}
                 component={'form'}
@@ -95,15 +124,29 @@ export default function AddConvoi({googleMapsApi, onDestinationChange}: AddConvo
                     error={formik.touched.name && Boolean(formik.errors.name)}
                     helperText={formik.touched.name && formik.errors.name && formik.errors.name}
                 />
-                <PlaceSearch
-                    id="address"
-                    label="Destination"
-                    googleMapsApi={googleMapsApi}
-                    error={formik.touched.address && Boolean(formik.errors.address)}
-                    errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
-                    onChange={handleDestinationChange}
-                />
-                <Box sx={{pt: 4, pb: 1}}>
+                {destination ? (
+                    <Box sx={{pb: 2, pt: 1}}>
+                        <Typography sx={{pb: 1}}>Destination:</Typography>
+                        <Chip
+                            sx={{justifyContent: 'space-between'}}
+                            color="primary"
+                            label={destination.formatted_address}
+                            onClick={handleClick}
+                            onDelete={clearDestination}
+                        />
+                    </Box>
+
+                ) : (
+                    <PlaceSearch
+                        id="address"
+                        label="Destination"
+                        googleMapsApi={googleMapsApi}
+                        error={formik.touched.address && Boolean(formik.errors.address)}
+                        errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
+                        onChange={handleDestinationChange}
+                    />
+                )}
+                <Box sx={{pt: 2, pb: 1}}>
                     <DateTimePicker
                         label="Estimated Time of Departure"
                         value={formik.values.etd}

@@ -2,7 +2,7 @@ import * as React from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from "@mui/material/TextField";
 import debounce from 'lodash.debounce'
-import {GoogleMapsApi} from "./index";
+import {GoogleMapsApi} from "../index";
 
 type PlaceSearchProps = {
     id: string,
@@ -13,16 +13,16 @@ type PlaceSearchProps = {
     onChange: (place: google.maps.places.PlaceResult | null) => void,
 }
 
-type SearchResults = {
+type SearchResult = {
     label: string,
     place_id: string
 }
 
-export default function PlaceSearch({id, label, googleMapsApi, error, errorMessage, onChange}: PlaceSearchProps) {
+
+export function PlaceSearch({id, label, googleMapsApi, error, errorMessage, onChange}: PlaceSearchProps) {
     const [AutoCompleteService, setAutoCompleteService] = React.useState<google.maps.places.AutocompleteService>();
     const [PlaceService, setPlaceService] = React.useState<google.maps.places.PlacesService>();
-    const [search, setSearch] = React.useState('');
-    const [searchResults, setSearchResults] = React.useState<SearchResults[]>([]);
+    const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
 
     React.useEffect(() => {
         if (googleMapsApi) {
@@ -61,13 +61,13 @@ export default function PlaceSearch({id, label, googleMapsApi, error, errorMessa
         [AutoCompleteService])
 
     const handleInputChange = (event: React.ChangeEvent<any>) => {
-        setSearch(event.target.value);
+        setSearchResults([]);
         getPlacePredictions(event.target.value);
     }
 
-    const handleSelectPlace = (event: React.ChangeEvent<any>, value: SearchResults | null) => {
+    const handleSelectPlace = (event: React.ChangeEvent<any>, value: SearchResult | null) => {
         if (value) {
-            // get place details and return reuls to parent
+            // get place details and return results to parent
             const request = {placeId: value.place_id};
             PlaceService?.getDetails(request, (place, status) => {
                 if (status === 'OK' && place?.geometry?.location) onChange(place);
@@ -79,7 +79,7 @@ export default function PlaceSearch({id, label, googleMapsApi, error, errorMessa
 
     return (
         <Autocomplete
-            disabled={!AutoCompleteService || !PlaceService}
+            loading={!AutoCompleteService || !PlaceService}
             disablePortal
             id="combo-box-demo"
             options={searchResults || []}
@@ -102,7 +102,6 @@ export default function PlaceSearch({id, label, googleMapsApi, error, errorMessa
                         type="string"
                         fullWidth
                         variant="outlined"
-                        value={search}
                         onChange={handleInputChange}
                         error={error}
                         helperText={errorMessage}
@@ -112,3 +111,5 @@ export default function PlaceSearch({id, label, googleMapsApi, error, errorMessa
         />
     )
 }
+
+export default PlaceSearch;

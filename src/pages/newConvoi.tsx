@@ -1,12 +1,7 @@
 import * as React from 'react';
 import GoogleMapReact from 'google-map-react';
 import AddConvoi from "../components/convois/addConvoi";
-import Destination from "../components/map/components/goal";
-import MapMenu from "../components/map/mapMenu";
-import Map, {GoogleMapsApi, Location} from "../components/map";
-
-const DEFAULT_ZOOM = 13;
-const DEFAULT_CENTER = {lat: 52.5200, lng: 13.4050}
+import Map, {GoogleMapsApi, MapDrawer, Destination, MapMenu} from "../components/map";
 
 type MenuState = {
     lat?: number,
@@ -14,14 +9,13 @@ type MenuState = {
     open: boolean
 }
 
+type Place = google.maps.places.PlaceResult | google.maps.GeocoderResult | null;
+
 const NewConvoi = () => {
     const [open, setOpen] = React.useState(true);
-    const [location, setLocation] = React.useState<Location>();
-    const [destination, setDestination] = React.useState<google.maps.places.PlaceResult|null>()
+    const [destination, setDestination] = React.useState<Place>()
     const [menuState, setMenuState] = React.useState<MenuState>({open: false});
     const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>()
-
-    React.useEffect(() => {})
 
     const handleMapClicked = (e: GoogleMapReact.ClickEventValue) => {
         setMenuState(prev => ({lat: e.lat, lng: e.lng, open: !prev.open}))
@@ -31,28 +25,29 @@ const NewConvoi = () => {
         setOpen(prev => !prev);
     }
 
-    const handleDestinationChange = (place: google.maps.places.PlaceResult | null) => {
+    const handleDestinationChange = (place: Place) => {
         if (place && place.geometry?.location && googleMapsApi) {
             setDestination(place);
+            if (menuState.open) setMenuState({open: false});
             googleMapsApi.map.setCenter(place.geometry.location);
-            googleMapsApi.map.setZoom(17);
+
         } else if (googleMapsApi) {
             setDestination(null);
-            if (location) googleMapsApi.map.setCenter({lat: location.lat, lng: location.lng});
-            else googleMapsApi.map.setCenter(DEFAULT_CENTER);
-            googleMapsApi.map.setZoom(DEFAULT_ZOOM);
         }
     }
 
     return (
         <React.Fragment>
-            <MapMenu open={open} onToggleMenuOpen={toggleMenuOpen}>
-                <AddConvoi googleMapsApi={googleMapsApi} onDestinationChange={handleDestinationChange} />
-            </MapMenu>
+            <MapDrawer open={open} onToggleMenuOpen={toggleMenuOpen}>
+                <AddConvoi
+                    destination={destination}
+                    googleMapsApi={googleMapsApi}
+                    onDestinationChange={handleDestinationChange}
+                />
+            </MapDrawer>
             <Map
                 onApiLoaded={setGoogleMapsApi}
                 onMapClicked={handleMapClicked}
-                onLocationChange={setLocation}
                 centerLocationOnLoad={true}
             >
                 {!!destination && (
@@ -61,7 +56,15 @@ const NewConvoi = () => {
                         lng={destination.geometry?.location?.lng()}
                     />
                 )}
-                {menuState.open && <Destination lat={menuState.lat} lng={menuState.lng}/>}
+                {menuState.open && (
+                    <MapMenu
+                        lat={menuState.lat}
+                        lng={menuState.lng}
+                        googleMapsApi={googleMapsApi}
+                        onSetDestination={handleDestinationChange}
+                        onClose={() => setMenuState({ open: false })}
+                    />
+                )}
             </Map>
         </React.Fragment>
     );

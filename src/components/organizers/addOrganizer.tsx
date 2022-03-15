@@ -75,7 +75,7 @@ export function AddOrganizer() {
                 unsubscribe();
             }
         }
-    }, [user.project, requestId, formik])
+    }, [user.project, requestId])
 
     const handleClickOpen = () => {
         setOpen(true);

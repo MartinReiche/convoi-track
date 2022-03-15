@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Box from '@mui/material/Box';
 import MarkerIcon from '@mui/icons-material/Room';
 
-function Goal() {
+export function Destination() {
     return (
         <Box>
             <MarkerIcon color="error" sx={{fontSize: 40, transform: 'translate(-50%,-100%)'}}/>
@@ -11,9 +11,9 @@ function Goal() {
     )
 }
 
-Goal.propTypes = {
+Destination.propTypes = {
     lat: PropTypes.number,
     lng: PropTypes.number,
 }
 
-export default Goal;
+export default Destination;

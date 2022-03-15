@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import {Link} from "react-router-dom";
 import {Timestamp} from 'firebase/firestore';
-import Goal from "../map/components/goal";
+import Destination from "../map/components/destination";
 import Map, {GoogleMapsApi} from "../map";
 import { Convoi } from '.';
 
@@ -85,7 +85,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                             defaultZoom={DEFAULT_ZOOM}
                             onApiLoaded={setGoogleMapsApi}
                         >
-                            <Goal lat={convoi.destCoords.latitude} lng={convoi.destCoords.longitude}/>
+                            <Destination lat={convoi.destCoords.latitude} lng={convoi.destCoords.longitude}/>
                         </Map>
                     </CardMedia>
                 </Grid>

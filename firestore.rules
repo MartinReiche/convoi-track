@@ -20,9 +20,9 @@ service cloud.firestore {
 
         // convoi
         function isValidConvoi() {
-            return request.resource.data.keys().hasOnly(['name', 'destName', 'destAddress', 'destCoords', 'destId', 'etd', 'eta'])
+            return request.resource.data.keys().hasOnly(['project', 'name', 'destAddress', 'destCoords', 'destId', 'etd', 'eta'])
                    && request.resource.data.name is string
-                   && request.resource.data.destName is string
+                   && request.resource.data.project is string
                    && request.resource.data.destAddress is string
                    && request.resource.data.destId is string
                    && request.resource.data.destCoords is latlng

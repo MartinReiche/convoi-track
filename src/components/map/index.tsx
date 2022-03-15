@@ -17,6 +17,8 @@ export type Location = {
     lng: number
 }
 
+export 
+
 interface MapProps {
     children?: React.ReactNode
     defaultZoom?: number
@@ -88,3 +90,8 @@ const Map = (
 }
 
 export default Map;
+export * from './components/mapDrawer';
+export * from './components/destination';
+export * from './components/mapMenu';
+export * from './components/myLocation';
+export * from './components/placeSearch';
