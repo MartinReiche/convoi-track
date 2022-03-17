@@ -1,0 +1,38 @@
+import * as React from "react";
+import {useLocation, Navigate} from "react-router-dom";
+import Loading from "../loading";
+import {useAuth} from "../auth/authProvider";
+import getFirebase from "../../utils/getFirebase";
+import {isSignInWithEmailLink} from "firebase/auth";
+import ConfirmLogin from "../auth/confirmLogin";
+import RequireUnauth from "./requireUnauth";
+
+function RequireAuth({children, roles}: { children: JSX.Element, roles: string[] }) {
+    const {user} = useAuth();
+    const location = useLocation();
+    const {auth} = getFirebase();
+
+    // show loading spinner if user is not yet loaded
+    if (user.loading) return <Loading open={true} />;
+
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+        return (
+            <RequireUnauth>
+                <ConfirmLogin />
+            </RequireUnauth>
+        );
+    }
+    // redirect to login screen if unauthenticated
+    if (!user.isAuthenticated) {
+        return <Navigate to="/login" state={{from: location}} replace/>;
+    }
+    // redirect home if insufficient permission
+    if(!roles.includes(user.role as string)) {
+        return <Navigate to="/" state={{from: location}} replace/>;
+    }
+    // let user pass
+    if (user.isAuthenticated && roles.includes(user.role as string)) return children;
+    return null;
+}
+
+export default RequireAuth;

@@ -1,0 +1,137 @@
+rules_version = '2';
+service cloud.firestore {
+    match /databases/{database}/documents {
+        // Auth utility functions
+        function isAdmin() {
+            return request.auth.token.role == 'admin';
+        }
+        function isProjectAdmin(projectId) {
+            return request.auth.token.role == 'project-admin' && request.auth.token.project == projectId;
+        }
+        function isOrga(projectId) {
+            return request.auth.token.role == 'orga' && request.auth.token.project == projectId;
+        }
+        function isConvoiMember(convoiId) {
+            return request.auth.token.role == 'driver' && request.auth.token.convoi == convoiId;
+        }
+        function isCarDriver(carId) {
+            return request.auth.token.role == 'driver' && request.auth.token.car == carId;
+        }
+
+        // validation functions
+        // user request
+        function isValidUserRequest() {
+            return request.resource.data.keys().hasOnly(['name', 'email', 'host', 'sendInvite'])
+                   && request.resource.data.name is string
+                   && request.resource.data.email is string
+                   && request.resource.data.host is string
+                   && request.resource.data.sendInvite is bool;
+        }
+        // location
+        function isValidLocation(field) {
+            return request.resource.data[field].keys().hasOnly(['address', 'coordinates', 'date'])
+                && request.resource.data[field].keys().hasAll(['address', 'coordinates', 'date'])
+                && request.resource.data[field].address is string
+                && request.resource.data[field].coordinates is latlng
+                && request.resource.data[field].date is timestamp;
+
+        }
+        // convoi
+        function isValidConvoi() {
+            return request.resource.data.keys().hasOnly(['project', 'name', 'destination', 'etd', 'createdAt'])
+                   && request.resource.data.name is string
+                   && request.resource.data.project is string
+                   && request.resource.data.etd is timestamp
+                   && request.resource.data.createdAt is timestamp
+                   && isValidLocation('destination');
+        }
+
+        // Car
+        function isValidCar() {
+            return request.resource.data.keys().hasOnly(['project', 'convoi', 'name', 'numberPlate', 'crew', 'guests', 'freeSeats', 'from', 'position', 'heading', 'destination', 'updatedAt'])
+                   && request.resource.data.project is string
+                   && request.resource.data.convoi is string
+                   && request.resource.data.name is string
+                   && request.resource.data.numberPlate is string
+                   && request.resource.data.crew is number
+                   && request.resource.data.guests is number
+                   && request.resource.data.freeSeats is number
+                   && request.resource.data.updatedAt is timestamp
+                   && isValidLocation('from')
+                   && isValidLocation('position')
+                   && isValidLocation('heading')
+                   && isValidLocation('destination');
+        }
+
+        // CarStatus
+        function isValidCarStatus() {
+            return request.resource.data.keys().hasOnly(['project', 'convoi', 'car', 'crew', 'guests', 'freeSeats', 'misc', 'from', 'position', 'heading', 'destination', 'updatedAt'])
+                   && request.resource.data.project is string
+                   && request.resource.data.convoi is string
+                   && request.resource.data.car is string
+                   && request.resource.data.crew is number
+                   && request.resource.data.guests is number
+                   && request.resource.data.freeSeats is number
+                   && request.resource.data.misc is string
+                   && request.resource.data.updatedAt is timestamp
+                   && isValidLocation('from')
+                   && isValidLocation('position')
+                   && isValidLocation('heading')
+                   && isValidLocation('destination');
+        }
+
+        // Requests to Add Orga Users
+        match /projects/{projectId}/addOrgaRequest/{requestId} {
+            allow get: if isAdmin() || isProjectAdmin(projectId);
+            allow create: if isAdmin() || isProjectAdmin(projectId) && isValidUserRequest();
+        }
+        // Orga Users
+        match /projects/{projectId}/orga/{email} {
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId);
+            allow delete: if isAdmin() || isProjectAdmin(projectId);
+        }
+        // Requests to Add Drivers
+        match /projects/{projectId}/convois/{convoiId}/cars/{carId}/addDriverRequest/{requestId} {
+            allow get: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId);
+            allow create: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) && isValidUserRequest();
+        }
+        // Drivers
+        match /projects/{projectId}/convois/{convoiId}/cars/{carId}/drivers/{email} {
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) || isCarDriver(carId);
+            allow delete: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) || request.auth.uid == email;
+        }
+
+        // Convois
+        match /projects/{projectId}/convois/{convoiId} {
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) || isConvoiMember(convoiId);
+            allow create: if isAdmin() || isProjectAdmin(projectId) && isValidConvoi();
+            allow update: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId);
+            allow delete: if isAdmin() || isProjectAdmin(projectId);
+        }
+
+        // Cars
+        match /projects/{projectId}/convois/{convoiId}/cars/{carId} {
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) || isConvoiMember(convoiId);
+            allow create: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) && isValidCar();
+            allow update: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) && isValidCar();
+            allow delete: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId);
+        }
+
+        // CarStatus
+        match /projects/{projectId}/convois/{convoiId}/cars/{carId}/status/{id} {
+            allow read: if isAdmin() || isProjectAdmin(projectId) || isOrga(projectId) || isCarDriver(carId);
+            allow create: if isCarDriver(carId) && isValidCarStatus();
+            allow update: if isCarDriver(carId) && isValidCarStatus();
+            allow delete: if isCarDriver(carId) && isValidCarStatus();
+        }
+
+        // Login Requests
+        match /loginRequests/{documentId} {
+            allow create: if true
+                             && request.resource.data.keys().hasOnly(['email', 'host'])
+                             && request.resource.data.email is string
+                             && request.resource.data.host is string;
+            allow get: if true;
+        }
+    }
+}
