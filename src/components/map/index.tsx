@@ -4,7 +4,7 @@ import useCurrentLocation from "../../utils/useCurrentLocation";
 import AlertBar, {Alert} from "../alert";
 import useMapColorModeStyles from "./useMapColorModeStyles";
 import {MapLocation} from "./models";
-import {useMap} from "./mapProvider";
+import {useMap, MapDrawer} from ".";
 
 const DEFAULT_ZOOM = 13;
 const DEFAULT_CENTER = {lat: 52.5200, lng: 13.4050}
@@ -15,6 +15,7 @@ export interface MapProps {
     defaultCenter?: MapLocation
     centerLocationOnLoad?: boolean
     onLocationChange?: (location: MapLocation) => void
+    drawerElements?: React.ReactNode
 }
 
 const Map = ({
@@ -23,7 +24,9 @@ const Map = ({
                  defaultZoom = DEFAULT_ZOOM,
                  centerLocationOnLoad,
                  onLocationChange,
+                 drawerElements
              }: MapProps) => {
+    const [drawerOpen, setDrawerOpen] = React.useState(true);
     const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
     const [centeredInitially, setCenteredInitially] = React.useState(false);
     const {location, locationError} = useCurrentLocation();
@@ -46,6 +49,11 @@ const Map = ({
 
     return (
         <React.Fragment>
+            {drawerElements && (
+                <MapDrawer open={drawerOpen} onToggleMenuOpen={() => setDrawerOpen(prev => !prev)}>
+                    {React.Children.map(drawerElements, (child) => child)}
+                </MapDrawer>
+            )}
             <GoogleMapReact
                 bootstrapURLKeys={{
                     key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',

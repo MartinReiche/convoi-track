@@ -24,10 +24,11 @@ export function useConvoiCars() {
                 numberPlate: doc.data().numberPlate,
                 crew: doc.data().crew,
                 guests: doc.data().guests,
-                from: new MapLocation(doc.data().from),
-                position: new MapLocation(doc.data().position),
-                heading: new MapLocation(doc.data().heading),
-                destination: new MapLocation(doc.data().destination),
+                freeSeats: doc.data().freeSeats,
+                from: doc.data().from && new MapLocation(doc.data().from),
+                position: doc.data().position && new MapLocation(doc.data().position),
+                heading: doc.data().heading && new MapLocation(doc.data().heading),
+                destination: doc.data().destination && new MapLocation(doc.data().destination),
                 updatedAt: doc.data().updatedAt
             }));
             setCars(carDocs);

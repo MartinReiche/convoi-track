@@ -63,7 +63,6 @@ export function Cars({cars, onCarSelect, onCarFocus, onAddCarToggle}: CarsProps)
                 );
             })}
             <ListItem
-                onClick={() => console.log("Implement add new Car")}
                 disablePadding
                 sx={{pt: 1, pb: 1}}
             >

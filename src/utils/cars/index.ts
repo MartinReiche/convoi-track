@@ -9,6 +9,7 @@ export type Car = {
     numberPlate: string
     crew: number
     guests: number
+    freeSeats: number
     from?: MapLocation
     position?: MapLocation
     heading?: MapLocation

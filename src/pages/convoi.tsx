@@ -1,5 +1,5 @@
 import * as React from "react";
-import Map, {useMap, MapDrawer, Destination, MapMenu, MapProvider} from "../components/map";
+import Map, {useMap, Destination, MapMenu, MapProvider} from "../components/map";
 import Loading from "../components/loading";
 import {useConvoi} from "../utils/convois";
 import {useConvoiCars} from "../utils/cars";
@@ -17,12 +17,13 @@ type MenuState = {
 const ConvoiPage = () => {
     // UI state
     const [loading, setLoading] = React.useState(true);
-    const [drawerOpen, setDrawerOpen] = React.useState(true);
     const [addCarOpen, setAddCarOpen] = React.useState(false);
     const [mapMenuState, setMapMenuState] = React.useState<MenuState>({open: false});
     // locations
-    const [destination, setDestination] = React.useState<MapLocation|null>();
-    const [convoiDestination, setConvoiDestination] = React.useState<MapLocation>();
+    const [convoiDestination, setConvoiDestination] = React.useState<MapLocation|null>();
+    const [selectedCar, setSelectedCar] = React.useState<MapLocation|null>(null);
+    const [newCarDestination, setNewCarDestination] = React.useState<MapLocation|null>();
+
 
     // API
     const {map, mapClickEvent} = useMap();
@@ -31,34 +32,35 @@ const ConvoiPage = () => {
     const cars = useConvoiCars();
 
     React.useEffect(() => {
-            if (convoi && cars && map) {
-                setLoading(false);
-                setConvoiDestination(convoi.destination);
-                if (convoi.destination.coordinates) {
-                    map.setCenter({
-                        lat: convoi.destination.coordinates?.latitude,
-                        lng: convoi.destination.coordinates?.longitude
-                    });
-                }
+        if (convoi && cars && map) {
+            setLoading(false);
+            setConvoiDestination(convoi.destination);
+            if (convoi.destination.coordinates) {
+                map.setCenter({
+                    lat: convoi.destination.coordinates?.latitude,
+                    lng: convoi.destination.coordinates?.longitude
+                });
             }
-        }, [convoi, cars, map]);
+        }
+    }, [convoi, cars, map]);
 
     React.useEffect(() => {
         if (mapClickEvent) setMapMenuState({lat: mapClickEvent.lat, lng: mapClickEvent.lng, open: true});
-    },[mapClickEvent])
+    }, [mapClickEvent])
 
-    const toggleMenuOpen = () => {
-        setDrawerOpen(prev => !prev);
-    }
+    React.useEffect(() => {
+        setMapMenuState({open: false});
+    }, [convoiDestination, selectedCar, newCarDestination])
 
-    const handleDestinationChange = (place: MapLocation|null) => {
-        if (place && place.coordinates && map) {
-            setDestination(place);
-            setMapMenuState({open: false});
-            map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
+    React.useEffect(() => {
+        setMapMenuState({open: false});
+    }, [convoiDestination, selectedCar, newCarDestination])
 
+    const handleConvoiDestinationChange = (place: MapLocation | null) => {
+        if (place) {
+            setConvoiDestination(place);
         } else {
-            setDestination(null);
+            setConvoiDestination(null);
         }
     }
 
@@ -75,36 +77,40 @@ const ConvoiPage = () => {
     return (
         <React.Fragment>
             <Loading open={loading}/>
-            <MapDrawer open={drawerOpen} onToggleMenuOpen={toggleMenuOpen}>
-                {addCarOpen ? (
-                    <AddCar
-                        destination={convoiDestination}
-                        onDestinationChange={handleDestinationChange}
-                        onToggleOpen={() => setAddCarOpen(prev => !prev)}
-                    />
-                ) : (
-                    <Cars
-                        cars={cars}
-                        onCarSelect={handleCarSelect}
-                        onCarFocus={handleCarFocus}
-                        onAddCarToggle={() => setAddCarOpen(prev => !prev)}
-                    />
-                )}
-            </MapDrawer>
             <Map
                 centerLocationOnLoad={true}
+                drawerElements={
+                    <React.Fragment>
+                        {addCarOpen && (
+                            <AddCar
+                                convoiDestination={convoiDestination}
+                                destination={newCarDestination}
+                                onDestinationChange={setNewCarDestination}
+                                onToggleOpen={() => setAddCarOpen(prev => !prev)}
+                            />
+                        )}
+                        {!addCarOpen && (
+                            <Cars
+                                cars={cars}
+                                onCarSelect={handleCarSelect}
+                                onCarFocus={handleCarFocus}
+                                onAddCarToggle={() => setAddCarOpen(prev => !prev)}
+                            />
+                        )}
+                    </React.Fragment>
+                }
             >
-                {!!destination?.coordinates && (
+                {!!convoiDestination?.coordinates && (
                     <Destination
-                        lat={destination.coordinates.latitude}
-                        lng={destination.coordinates.longitude}
+                        lat={convoiDestination.coordinates.latitude}
+                        lng={convoiDestination.coordinates.longitude}
                     />
                 )}
                 {mapMenuState.open && (
                     <MapMenu
                         lat={mapMenuState.lat}
                         lng={mapMenuState.lng}
-                        onSetDestination={handleDestinationChange}
+                        onSetDestination={handleConvoiDestinationChange}
                         onClose={() => setMapMenuState({open: false})}
                     />
                 )}
@@ -115,7 +121,7 @@ const ConvoiPage = () => {
 
 const ConvoiPageWithContext = () => (
     <MapProvider>
-        <ConvoiPage />
+        <ConvoiPage/>
     </MapProvider>
 )
 

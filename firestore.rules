@@ -48,13 +48,14 @@ service cloud.firestore {
 
         // Car
         function isValidCar() {
-            return request.resource.data.keys().hasOnly(['project', 'convoi', 'name', 'numberPlate', 'crew', 'guests', 'from', 'position', 'heading', 'destination', 'updatedAt'])
+            return request.resource.data.keys().hasOnly(['project', 'convoi', 'name', 'numberPlate', 'crew', 'guests', 'freeSeats', 'from', 'position', 'heading', 'destination', 'updatedAt'])
                    && request.resource.data.project is string
                    && request.resource.data.convoi is string
                    && request.resource.data.name is string
                    && request.resource.data.numberPlate is string
                    && request.resource.data.crew is number
                    && request.resource.data.guests is number
+                   && request.resource.data.freeSeats is number
                    && request.resource.data.updatedAt is timestamp
                    && isValidLocation('from')
                    && isValidLocation('position')
@@ -64,12 +65,13 @@ service cloud.firestore {
 
         // CarStatus
         function isValidCarStatus() {
-            return request.resource.data.keys().hasOnly(['project', 'convoi', 'car', 'crew', 'guests', 'misc', 'from', 'position', 'heading', 'destination', 'updatedAt'])
+            return request.resource.data.keys().hasOnly(['project', 'convoi', 'car', 'crew', 'guests', 'freeSeats', 'misc', 'from', 'position', 'heading', 'destination', 'updatedAt'])
                    && request.resource.data.project is string
                    && request.resource.data.convoi is string
                    && request.resource.data.car is string
                    && request.resource.data.crew is number
                    && request.resource.data.guests is number
+                   && request.resource.data.freeSeats is number
                    && request.resource.data.misc is string
                    && request.resource.data.updatedAt is timestamp
                    && isValidLocation('from')

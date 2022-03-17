@@ -11,66 +11,70 @@ import {PlaceSearch} from "../map";
 import Loading from '../loading';
 import Chip from '@mui/material/Chip';
 import Typography from "@mui/material/Typography";
-import {GeoPoint} from 'firebase/firestore';
-import {useNavigate} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import AlertBar, {Alert} from "../alert";
 import {MapLocation} from "../map/models";
 import {useMap} from "../map";
+import DateTimePicker from "@mui/lab/MobileDateTimePicker";
 
 const validationSchema = yup.object({
     name: yup.string().required('Name is required'),
     address: yup.string().required("Destination Address is required"),
-    etd: yup.date().required(),
+    numberPlate: yup.string().required('Numberplate is required'),
+    freeSeats: yup.number().required('Number of free seats is required'),
     eta: yup.date().required(),
 });
 
 type AddCarProps = {
-    destination: MapLocation | undefined
-    onDestinationChange: (place: MapLocation | null) => void
+    destination: MapLocation | undefined | null
+    convoiDestination: MapLocation | undefined | null
+    onDestinationChange: (location: MapLocation | null) => void
     onToggleOpen: () => void
 }
 
-export default function AddCar({destination, onDestinationChange, onToggleOpen}: AddCarProps) {
+export default function AddCar({destination, convoiDestination, onDestinationChange, onToggleOpen}: AddCarProps) {
+    const [pristine, setPristine] = React.useState(true);
+    const [currentDestination, setCurrentDestination] = React.useState<MapLocation | null>();
     const [loading, setLoading] = React.useState(false);
     const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
-    const [selectedDestination, setSelectedDestination] = React.useState<MapLocation|null>(null);
     const {user} = useAuth();
-    const navigate = useNavigate();
     const {map} = useMap();
+    const params = useParams();
 
     React.useEffect(() => {
-        if (destination) setSelectedDestination(destination);
-    }, [destination])
+        console.log("setCurrentDest")
+        if (pristine) setCurrentDestination(convoiDestination);
+        else setCurrentDestination(destination);
+    }, [pristine, convoiDestination, destination])
 
     const formik = useFormik({
         initialValues: {
             name: '',
-            address: '',
-            etd: new Date(),
-            eta: new Date(),
+            address: convoiDestination?.address,
+            numberPlate: '',
+            freeSeats: 0,
+            eta: convoiDestination?.date?.toDate() || new Date(),
         },
         validationSchema: validationSchema,
-        onSubmit: async ({name, etd, eta}) => {
+        onSubmit: async ({name, eta, numberPlate, freeSeats}) => {
             const {db} = getFirebase();
             setLoading(true);
-            if (!selectedDestination?.address || !selectedDestination?.coordinates) return null;
+            if (!currentDestination?.address || !currentDestination?.coordinates) return null;
             try {
-                const convoiRef = await addDoc(collection(db, `projects/${user.project}/convois`), {
+                await addDoc(collection(db, `projects/${user.project}/convois/${params.id}/cars`), {
                     project: user.project,
                     name,
+                    eta,
+                    numberPlate,
+                    freeSeats,
                     destination: {
-                        address: selectedDestination.address,
-                        coordinates: new GeoPoint(
-                            selectedDestination.coordinates.latitude,
-                            selectedDestination.coordinates.longitude,
-                        ),
+                        ...currentDestination,
                         date: eta,
                     },
-                    etd,
                     createdAt: new Date(),
                 });
                 setLoading(false);
-                navigate(`/convoys/${convoiRef.id}`);
+                onToggleOpen();
             } catch (e: any) {
                 console.log(e)
                 setLoading(false);
@@ -79,31 +83,35 @@ export default function AddCar({destination, onDestinationChange, onToggleOpen}:
         },
     });
 
-    const handleDestinationChange = (place: MapLocation | null) => {
-        if (place) {
-            formik.setFieldValue('address', place.address);
-            setSelectedDestination(place);
-            onDestinationChange(place);
+    const handleDestinationChange = (location: MapLocation | null) => {
+        if (location) {
+            formik.setFieldValue('address', location.address);
+            onDestinationChange(location);
+            if (location.coordinates?.latitude && location.coordinates?.longitude) {
+                map?.setCenter({
+                    lat: location.coordinates?.latitude,
+                    lng: location.coordinates?.longitude
+                })
+            }
         } else {
             clearDestination();
         }
     }
 
     const handleClick = () => {
-        if (map && selectedDestination?.coordinates) {
+        if (map && currentDestination?.coordinates) {
             map.setCenter({
-                lat: selectedDestination.coordinates.latitude,
-                lng: selectedDestination.coordinates.longitude
+                lat: currentDestination.coordinates.latitude,
+                lng: currentDestination.coordinates.longitude
             })
         }
     }
 
     const clearDestination = () => {
-        formik.setFieldValue('address', '');
-        setSelectedDestination(null);
+        formik.setFieldValue('address', '')
+        setPristine(false);
         onDestinationChange(null);
     }
-
 
     return (
         <React.Fragment>
@@ -127,19 +135,43 @@ export default function AddCar({destination, onDestinationChange, onToggleOpen}:
                     error={formik.touched.name && Boolean(formik.errors.name)}
                     helperText={formik.touched.name && formik.errors.name && formik.errors.name}
                 />
-                {destination ? (
-                    <Box sx={{pb: 2, pt: 1}}>
-                        <Typography sx={{pb: 1}}>Destination:</Typography>
-                        <Chip
-                            sx={{justifyContent: 'space-between'}}
-                            color="primary"
-                            label={destination.address}
-                            onClick={handleClick}
-                            onDelete={clearDestination}
-                        />
-                    </Box>
-
-                ) : (
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="numberPlate"
+                    label="Numberplate"
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    value={formik.values.numberPlate}
+                    onChange={formik.handleChange}
+                    error={formik.touched.numberPlate && Boolean(formik.errors.numberPlate)}
+                    helperText={formik.touched.numberPlate && formik.errors.numberPlate && formik.errors.numberPlate}
+                />
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="freeSeats"
+                    label="Number of free seats"
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                    value={formik.values.freeSeats}
+                    onChange={formik.handleChange}
+                    error={formik.touched.freeSeats && Boolean(formik.errors.freeSeats)}
+                    helperText={formik.touched.freeSeats && formik.errors.freeSeats && formik.errors.freeSeats}
+                />
+                <Box sx={{pb: 2, pt: 1, display: currentDestination ? 'block' : 'none'}}>
+                    <Typography sx={{pb: 1}}>Destination:</Typography>
+                    <Chip
+                        sx={{justifyContent: 'space-between'}}
+                        color="primary"
+                        label={pristine ? convoiDestination?.address : destination?.address}
+                        onClick={handleClick}
+                        onDelete={clearDestination}
+                    />
+                </Box>
+                <Box sx={{display: currentDestination ? 'none' : 'block'}}>
                     <PlaceSearch
                         id="address"
                         label="Destination"
@@ -147,9 +179,21 @@ export default function AddCar({destination, onDestinationChange, onToggleOpen}:
                         errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
                         onChange={handleDestinationChange}
                     />
-                )}
+                </Box>
+                <Box sx={{pt: 1, pb: 1}}>
+                    <DateTimePicker
+                        label="Estimated Time of Arrival"
+                        value={formik.values.eta}
+                        ampm={false}
+                        inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
+                        onChange={(value) => formik.setFieldValue('eta', value)}
+                        renderInput={(params) => (
+                            <TextField {...params} fullWidth/>
+                        )}
+                    />
+                </Box>
                 <Box sx={{display: 'flex', justifyContent: 'flex-end', pt: 2}}>
-                    <Button size="small" type="submit" onClick={onToggleOpen} sx={{ mr: 2}}>Cancel</Button>
+                    <Button size="small" type="submit" onClick={onToggleOpen} sx={{mr: 2}}>Cancel</Button>
                     <Button variant={"contained"} size="small" type="submit">Add Car</Button>
                 </Box>
             </Box>

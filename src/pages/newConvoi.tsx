@@ -1,6 +1,6 @@
 import * as React from 'react';
 import AddConvoi from "../components/convois/addConvoi";
-import Map, {MapProvider, MapDrawer, Destination, MapMenu, useMap} from "../components/map";
+import Map, {MapProvider, Destination, MapMenu, useMap} from "../components/map";
 import {MapLocation} from "../components/map/models";
 
 type MenuState = {
@@ -9,22 +9,16 @@ type MenuState = {
     open: boolean
 }
 
-
 const NewConvoi = () => {
-    const [drawerOpen, setDrawerOpen] = React.useState(true);
-    const [destination, setDestination] = React.useState<MapLocation|null>();
+    const [destination, setDestination] = React.useState<MapLocation | null>();
     const [mapMenuState, setMapMenuState] = React.useState<MenuState>({open: false});
     const {map, mapClickEvent} = useMap();
 
     React.useEffect(() => {
         if (mapClickEvent) setMapMenuState({lat: mapClickEvent.lat, lng: mapClickEvent.lng, open: true});
-    },[mapClickEvent])
+    }, [mapClickEvent])
 
-    const toggleMenuOpen = () => {
-        setDrawerOpen(prev => !prev);
-    }
-
-    const handleDestinationChange = (place: MapLocation|null) => {
+    const handleDestinationChange = (place: MapLocation | null) => {
         if (place && place.coordinates && map) {
             setDestination(place);
             if (mapMenuState.open) setMapMenuState({open: false});
@@ -37,14 +31,14 @@ const NewConvoi = () => {
 
     return (
         <React.Fragment>
-            <MapDrawer open={drawerOpen} onToggleMenuOpen={toggleMenuOpen}>
-                <AddConvoi
-                    destination={destination}
-                    onDestinationChange={handleDestinationChange}
-                />
-            </MapDrawer>
             <Map
                 centerLocationOnLoad={true}
+                drawerElements={
+                    <AddConvoi
+                        destination={destination}
+                        onDestinationChange={handleDestinationChange}
+                    />
+                }
             >
                 {!!destination?.coordinates && (
                     <Destination
@@ -57,7 +51,7 @@ const NewConvoi = () => {
                         lat={mapMenuState.lat}
                         lng={mapMenuState.lng}
                         onSetDestination={handleDestinationChange}
-                        onClose={() => setMapMenuState({ open: false })}
+                        onClose={() => setMapMenuState({open: false})}
                     />
                 )}
             </Map>
@@ -67,7 +61,7 @@ const NewConvoi = () => {
 
 const NewConvoiWithProvider = () => (
     <MapProvider>
-        <NewConvoi />
+        <NewConvoi/>
     </MapProvider>
 )
 

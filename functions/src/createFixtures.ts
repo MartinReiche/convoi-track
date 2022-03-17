@@ -32,6 +32,7 @@ const convois = [
         numberplate: "L-HC-1337",
         crew: 0,
         guests: 0,
+        freeSeats: 4,
         from: {
           address: "Leipzig, Startadresse",
           coordinates: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
@@ -81,6 +82,7 @@ const convois = [
             },
             crew: 2,
             guests: 0,
+            freeSeats: 4,
             misc: "Start in Leipzig",
             updatedAt: new Date("2022-03-17T12:00:00"),
           },
@@ -107,6 +109,7 @@ const convois = [
             },
             crew: 2,
             guests: 0,
+            freeSeats: 4,
             misc: "Start in Leipzig",
             updatedAt: new Date("2022-03-17T14:00:00"),
           },
