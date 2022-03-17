@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import DateTimePicker from '@mui/lab/MobileDateTimePicker';
 import * as yup from "yup";
 import {useFormik} from "formik";
 import getFirebase from "../../utils/getFirebase";
@@ -13,6 +12,7 @@ import Loading from '../loading';
 import {GoogleMapsApi} from "../map";
 import Chip from '@mui/material/Chip';
 import Typography from "@mui/material/Typography";
+import {GeoPoint} from 'firebase/firestore';
 import {useNavigate} from "react-router-dom";
 import AlertBar, {Alert} from "../alert";
 import {MapLocation} from "../map/models";
@@ -24,16 +24,17 @@ const validationSchema = yup.object({
     eta: yup.date().required(),
 });
 
-type AddConvoiProps = {
-    destination?: MapLocation|null
-    googleMapsApi?: GoogleMapsApi
+type AddCarProps = {
+    destination: MapLocation | undefined
+    googleMapsApi: GoogleMapsApi | undefined
     onDestinationChange: (place: MapLocation | null) => void
+    onToggleOpen: () => void
 }
 
-export default function AddConvoi({destination, googleMapsApi, onDestinationChange}: AddConvoiProps) {
+export default function AddCar({destination, googleMapsApi, onDestinationChange, onToggleOpen}: AddCarProps) {
     const [loading, setLoading] = React.useState(false);
     const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
-    const [selectedDestination, setSelectedDestination] = React.useState<MapLocation|null>();
+    const [selectedDestination, setSelectedDestination] = React.useState<MapLocation|null>(null);
     const {user} = useAuth();
     const navigate = useNavigate();
 
@@ -52,14 +53,18 @@ export default function AddConvoi({destination, googleMapsApi, onDestinationChan
         onSubmit: async ({name, etd, eta}) => {
             const {db} = getFirebase();
             setLoading(true);
-            if (!selectedDestination) return null
+            if (!selectedDestination?.address || !selectedDestination?.coordinates) return null;
             try {
                 const convoiRef = await addDoc(collection(db, `projects/${user.project}/convois`), {
                     project: user.project,
                     name,
                     destination: {
-                        ...selectedDestination,
-                        date: eta
+                        address: selectedDestination.address,
+                        coordinates: new GeoPoint(
+                            selectedDestination.coordinates.latitude,
+                            selectedDestination.coordinates.longitude,
+                        ),
+                        date: eta,
                     },
                     etd,
                     createdAt: new Date(),
@@ -67,7 +72,7 @@ export default function AddConvoi({destination, googleMapsApi, onDestinationChan
                 setLoading(false);
                 navigate(`/convoys/${convoiRef.id}`);
             } catch (e: any) {
-                console.error(e)
+                console.log(e)
                 setLoading(false);
                 setAlert({severity: 'error', message: 'Something went wrong. Please try again later.'});
             }
@@ -98,6 +103,7 @@ export default function AddConvoi({destination, googleMapsApi, onDestinationChan
         setSelectedDestination(null);
         onDestinationChange(null);
     }
+
 
     return (
         <React.Fragment>
@@ -143,32 +149,9 @@ export default function AddConvoi({destination, googleMapsApi, onDestinationChan
                         onChange={handleDestinationChange}
                     />
                 )}
-                <Box sx={{pt: 2, pb: 1}}>
-                    <DateTimePicker
-                        label="Estimated Time of Departure"
-                        value={formik.values.etd}
-                        ampm={false}
-                        inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
-                        onChange={(value) => formik.setFieldValue('etd', value)}
-                        renderInput={(params) => (
-                            <TextField {...params} fullWidth/>
-                        )}
-                    />
-                </Box>
-                <Box sx={{pt: 1, pb: 1}}>
-                    <DateTimePicker
-                        label="Estimated Time of Arrival"
-                        value={formik.values.eta}
-                        ampm={false}
-                        inputFormat={"dd.MM.yyyy HH:mm (zzz)"}
-                        onChange={(value) => formik.setFieldValue('eta', value)}
-                        renderInput={(params) => (
-                            <TextField {...params} fullWidth/>
-                        )}
-                    />
-                </Box>
                 <Box sx={{display: 'flex', justifyContent: 'flex-end', pt: 2}}>
-                    <Button variant={"contained"} size="small" type="submit">Create Convoy</Button>
+                    <Button size="small" type="submit" onClick={onToggleOpen} sx={{ mr: 2}}>Cancel</Button>
+                    <Button variant={"contained"} size="small" type="submit">Add Car</Button>
                 </Box>
             </Box>
         </React.Fragment>

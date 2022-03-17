@@ -8,7 +8,7 @@ import ArrowDowntIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import Drawer from '@mui/material/Drawer';
 
 interface MapMenuProps {
-    children: React.ReactElement
+    children: React.ReactNode
     open: boolean
     onToggleMenuOpen: () => void
 }
@@ -16,13 +16,18 @@ interface MapMenuProps {
 export const MapDrawer = ({children, open, onToggleMenuOpen}: MapMenuProps) => {
     return (
         <React.Fragment>
-            <Box sx={{ display: { xs: 'none', md: 'block'}}}>
+            <Box sx={{display: {xs: 'none', md: 'block'}}}>
                 <Drawer
                     open={open}
                     hideBackdrop={true}
                     variant="persistent"
+                    PaperProps={{
+                        sx: {
+                            backgroundColor: theme => theme.palette.background.default
+                        }
+                    }}
                 >
-                    <Box sx={{pt: '64px', minWidth: 350 }}>
+                    <Box sx={{pt: '64px', minWidth: 350}}>
                         {children}
                     </Box>
                 </Drawer>
@@ -41,9 +46,18 @@ export const MapDrawer = ({children, open, onToggleMenuOpen}: MapMenuProps) => {
                     hideBackdrop={true}
                     variant="persistent"
                     anchor="top"
+                    PaperProps={{
+                        sx: {
+                            backgroundColor: theme => theme.palette.background.default,
+                            maxHeight: '50vh'
+                        }
+                    }}
                 >
-                    <Box sx={{pt: { xs: '56px', sm: '64px' }, display: 'flex' }}>
-                        {children}
+                    <Box sx={{
+                        pt: {xs: '56px', sm: '64px'},
+                        display: 'flex',
+                    }}>
+                        {React.Children.map(children, (child) => child)}
                     </Box>
                 </Drawer>
                 <Box sx={{position: 'absolute', bottom: 20, left: 20, zIndex: (theme) => theme.zIndex.drawer}}>

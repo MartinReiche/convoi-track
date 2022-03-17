@@ -29,10 +29,10 @@ service cloud.firestore {
         }
         // location
         function isValidLocation(field) {
-            return request.resource.data[field].keys().hasOnly(['address', 'location', 'date'])
-                && request.resource.data[field].keys().hasAll(['address', 'location', 'date'])
+            return request.resource.data[field].keys().hasOnly(['address', 'coordinates', 'date'])
+                && request.resource.data[field].keys().hasAll(['address', 'coordinates', 'date'])
                 && request.resource.data[field].address is string
-                && request.resource.data[field].location is latlng
+                && request.resource.data[field].coordinates is latlng
                 && request.resource.data[field].date is timestamp;
 
         }

@@ -21,7 +21,7 @@ const convois = [
     name: "Convoi to Uzhgorod #1",
     destination: {
       address: "072 51, Slovakia, Vyšné Nemecké",
-      location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+      coordinates: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
       date: new Date("2022-04-17T11:00:00"),
     },
     etd: new Date("2022-03-17T12:00:00"),
@@ -34,22 +34,22 @@ const convois = [
         guests: 0,
         from: {
           address: "Leipzig, Startadresse",
-          location: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+          coordinates: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
           date: new Date("2022-03-17T12:00:00"),
         },
         position: {
           address: "Dreieck Nossen",
-          location: new admin.firestore.GeoPoint(51.05543338953122, 13.370823029736687),
+          coordinates: new admin.firestore.GeoPoint(51.05543338953122, 13.370823029736687),
           date: new Date("2022-03-17T14:00:00"),
         },
         heading: {
           address: "Deutsch-Tschechische Grenze",
-          location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+          coordinates: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
           date: new Date("2022-04-17T11:00:00"),
         },
         destination: {
           address: "072 51, Slovakia, Vyšné Nemecké",
-          location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+          coordinates: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
           date: new Date("2022-04-17T11:00:00"),
         },
         updatedAt: new Date("2022-03-17T14:00:00"),
@@ -61,22 +61,22 @@ const convois = [
           {
             from: {
               address: "Leipzig, Startadresse",
-              location: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+              coordinates: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
               date: new Date("2022-03-17T12:00:00"),
             },
             position: {
               address: "Leipzig, Startadresse",
-              location: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
+              coordinates: new admin.firestore.GeoPoint(51.30741649829015, 12.374281590207698),
               date: new Date("2022-03-17T12:00:00"),
             },
             heading: {
               address: "Deutsch-Tschechische Grenze",
-              location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+              coordinates: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
               date: new Date("2022-04-17T11:00:00"),
             },
             destination: {
               address: "072 51, Slovakia, Vyšné Nemecké",
-              location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+              coordinates: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
               date: new Date("2022-04-17T11:00:00"),
             },
             crew: 2,
@@ -87,22 +87,22 @@ const convois = [
           {
             from: {
               address: "Deutsch-Tschechische Grenze",
-              location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+              coordinates: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
               date: new Date("2022-04-17T11:00:00"),
             },
             position: {
               address: "Dreieck Nossen",
-              location: new admin.firestore.GeoPoint(51.05543338953122, 13.370823029736687),
+              coordinates: new admin.firestore.GeoPoint(51.05543338953122, 13.370823029736687),
               date: new Date("2022-03-17T14:00:00"),
             },
             heading: {
               address: "Deutsch-Tschechische Grenze",
-              location: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
+              coordinates: new admin.firestore.GeoPoint(50.78325692001859, 13.897759517922443),
               date: new Date("2022-04-17T11:00:00"),
             },
             destination: {
               address: "072 51, Slovakia, Vyšné Nemecké",
-              location: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
+              coordinates: new admin.firestore.GeoPoint(48.66112742163311, 22.262808868534815),
               date: new Date("2022-04-17T11:00:00"),
             },
             crew: 2,

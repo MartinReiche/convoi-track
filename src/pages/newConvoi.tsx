@@ -2,6 +2,7 @@ import * as React from 'react';
 import GoogleMapReact from 'google-map-react';
 import AddConvoi from "../components/convois/addConvoi";
 import Map, {GoogleMapsApi, MapDrawer, Destination, MapMenu} from "../components/map";
+import {MapLocation} from "../components/map/models";
 
 type MenuState = {
     lat?: number,
@@ -9,11 +10,10 @@ type MenuState = {
     open: boolean
 }
 
-type Place = google.maps.places.PlaceResult | google.maps.GeocoderResult | null;
 
 const NewConvoi = () => {
     const [drawerOpen, setDrawerOpen] = React.useState(true);
-    const [destination, setDestination] = React.useState<Place>();
+    const [destination, setDestination] = React.useState<MapLocation|null>();
     const [mapMenuState, setMapMenuState] = React.useState<MenuState>({open: false});
     const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
 
@@ -25,11 +25,11 @@ const NewConvoi = () => {
         setDrawerOpen(prev => !prev);
     }
 
-    const handleDestinationChange = (place: Place) => {
-        if (place && place.geometry?.location && googleMapsApi) {
+    const handleDestinationChange = (place: MapLocation|null) => {
+        if (place && place.coordinates && googleMapsApi) {
             setDestination(place);
             if (mapMenuState.open) setMapMenuState({open: false});
-            googleMapsApi.map.setCenter(place.geometry.location);
+            googleMapsApi.map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
 
         } else if (googleMapsApi) {
             setDestination(null);
@@ -50,10 +50,10 @@ const NewConvoi = () => {
                 onMapClicked={handleMapClicked}
                 centerLocationOnLoad={true}
             >
-                {!!destination && (
+                {!!destination?.coordinates && (
                     <Destination
-                        lat={destination.geometry?.location?.lat()}
-                        lng={destination.geometry?.location?.lng()}
+                        lat={destination.coordinates.latitude}
+                        lng={destination.coordinates.longitude}
                     />
                 )}
                 {mapMenuState.open && (

@@ -4,18 +4,32 @@ import {collection, onSnapshot} from "firebase/firestore";
 import {useAuth} from "../../components/auth/authProvider";
 import {useParams} from "react-router-dom";
 import {Car} from "../cars";
+import {MapLocation} from "../../components/map/models";
 
-function useConvoiCars() {
-    const [cars, setCars] = React.useState<Car[]>();
+export function useConvoiCars() {
+    const [cars, setCars] = React.useState<Car[]|null>(null);
     const {user} = useAuth();
     const {id} = useParams();
 
     React.useEffect(() => {
         const {db} = getFirebase();
-        const carStatusRef = collection(db, `projects/${user.project}/convois/${id}/cars`);
-        const unsubscribe = onSnapshot(carStatusRef, (snap) => {
+        const carDocsRef = collection(db, `projects/${user.project}/convois/${id}/cars`);
+        const unsubscribe = onSnapshot(carDocsRef, (snap) => {
             let carDocs: Car[] = [];
-            snap.forEach(doc => carDocs.push({id: doc.id, ...doc.data()} as Car));
+            snap.forEach(doc => carDocs.push({
+                id: doc.id,
+                project: doc.data().project,
+                convoi: doc.data().convoi,
+                name: doc.data().name,
+                numberPlate: doc.data().numberPlate,
+                crew: doc.data().crew,
+                guests: doc.data().guests,
+                from: new MapLocation(doc.data().from),
+                position: new MapLocation(doc.data().position),
+                heading: new MapLocation(doc.data().heading),
+                destination: new MapLocation(doc.data().destination),
+                updatedAt: doc.data().updatedAt
+            }));
             setCars(carDocs);
         });
         return function cleanUp() {

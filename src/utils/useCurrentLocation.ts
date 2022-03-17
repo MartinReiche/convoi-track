@@ -1,28 +1,16 @@
 import {useState, useEffect} from 'react';
-
-export type Location = {
-    lat: number
-    lng: number
-    accuracy: number
-    speed: number | null
-    heading: number | null
-}
+import {MapLocation} from "../components/map/models";
 
 function useCurrentLocation() {
-    const [location, setLocation] = useState<Location>();
+    const [location, setLocation] = useState<MapLocation>();
     const [locationError, setLocationError] = useState<GeolocationPositionError | Error>()
 
     useEffect(() => {
         if ("geolocation" in navigator) {
             const watchId = navigator.geolocation.watchPosition(
                 (pos) => {
-                    setLocation({
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                        accuracy: pos.coords.accuracy,
-                        speed: pos.coords.speed,
-                        heading: pos.coords.heading,
-                    })
+                    setLocation(new MapLocation({
+                        coordinates: { lat: pos.coords.latitude, lng: pos.coords.longitude}}))
                 },
                 (e) => {
                     console.log(e)

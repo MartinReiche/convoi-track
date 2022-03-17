@@ -1,10 +1,5 @@
-import {GeoPoint, Timestamp} from "firebase/firestore";
-
-export type Location = {
-    address: string
-    location: GeoPoint
-    date: Timestamp
-};
+import {Timestamp} from "firebase/firestore";
+import {MapLocation} from "../../components/map/models";
 
 export type Car = {
     id: string
@@ -14,10 +9,10 @@ export type Car = {
     numberPlate: string
     crew: number
     guests: number
-    from?: Location
-    position?: Location
-    heading?: GeoPoint
-    destination?: GeoPoint
+    from?: MapLocation
+    position?: MapLocation
+    heading?: MapLocation
+    destination?: MapLocation
     updatedAt: Timestamp
 }
 

@@ -12,7 +12,6 @@ import Grid from "@mui/material/Grid";
 import ConvoiCard from "./convoiCard";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
-import {grey} from "@mui/material/colors";
 import {Convoi} from "../../utils/convois"
 import {useConvois} from "../../utils/convois/";
 
@@ -46,7 +45,7 @@ export function Convois() {
     if (loading) return <Loading open={true}/>
     return (
         <Container maxWidth="md" sx={{pt: 5}}>
-            <Card sx={(theme) => ({backgroundColor: theme.palette.mode === 'dark' ? grey[900] : grey[200]})}>
+            <Card>
                 <CardHeader title="Manage Convoys"/>
                 <CardContent>
                     <Stack spacing={2}>

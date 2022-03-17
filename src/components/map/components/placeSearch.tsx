@@ -3,6 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from "@mui/material/TextField";
 import debounce from 'lodash.debounce'
 import {GoogleMapsApi} from "../index";
+import {MapLocation} from "../models";
 
 type PlaceSearchProps = {
     id: string,
@@ -10,7 +11,7 @@ type PlaceSearchProps = {
     googleMapsApi: GoogleMapsApi | undefined
     error: boolean | undefined,
     errorMessage: string | false | undefined,
-    onChange: (place: google.maps.places.PlaceResult | null) => void,
+    onChange: (place: MapLocation | null) => void,
 }
 
 type SearchResult = {
@@ -35,8 +36,8 @@ export function PlaceSearch({id, label, googleMapsApi, error, errorMessage, onCh
     // Debounced places Prediction
     const getPlacePredictions = React.useMemo(
         () => debounce((value: string) => {
-             // Callback Function for Place Prediction Change
-             const onPredictionsChanged = (
+            // Callback Function for Place Prediction Change
+            const onPredictionsChanged = (
                 predictions: google.maps.places.AutocompletePrediction[] | null,
                 status: google.maps.places.PlacesServiceStatus
             ) => {
@@ -70,7 +71,11 @@ export function PlaceSearch({id, label, googleMapsApi, error, errorMessage, onCh
             // get place details and return results to parent
             const request = {placeId: value.place_id};
             PlaceService?.getDetails(request, (place, status) => {
-                if (status === 'OK' && place?.geometry?.location) onChange(place);
+                if (status === 'OK' && place?.geometry?.location) {
+                    onChange(new MapLocation({
+                        coordinates: place
+                    }));
+                }
             })
         } else {
             onChange(null);

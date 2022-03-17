@@ -1,9 +1,9 @@
 import * as React from 'react';
 import getFirebase from "../getFirebase";
-import {collection, GeoPoint, onSnapshot, Timestamp} from "firebase/firestore";
+import {collection, onSnapshot, Timestamp} from "firebase/firestore";
 import {useAuth} from "../../components/auth/authProvider";
 import {useParams} from "react-router-dom";
-import {Location} from "../cars";
+import {MapLocation} from "../../components/map/models";
 
 export type CarStatus = {
     id: string
@@ -13,13 +13,12 @@ export type CarStatus = {
     crew: number
     guests: number
     misc?: string
-    from: Location
-    position: Location
-    heading: GeoPoint
-    destination: GeoPoint
+    from: MapLocation
+    position: MapLocation
+    heading: MapLocation
+    destination: MapLocation
     updatedAt: Timestamp
 }
-
 
 function useCarStatus(carId: string) {
     const [carStatus, setCarStatus] = React.useState<CarStatus[]>();
@@ -31,7 +30,20 @@ function useCarStatus(carId: string) {
         const carStatusRef = collection(db, `projects/${user.project}/convois/${id}/cars/${carId}/status`);
         const unsubscribe = onSnapshot(carStatusRef, (snap) => {
             let carStatusDocs: CarStatus[] = [];
-            snap.forEach(doc => carStatusDocs.push({id: doc.id, ...doc.data()} as CarStatus));
+            snap.forEach(doc => carStatusDocs.push({
+                id: doc.id,
+                project: doc.data().project,
+                convoi: doc.data().convoi,
+                car: doc.data().car,
+                crew: doc.data().crew,
+                guests: doc.data().guests,
+                misc: doc.data().misc,
+                from: new MapLocation(doc.data().from),
+                position: new MapLocation(doc.data().position),
+                heading: new MapLocation(doc.data().heading),
+                destination: new MapLocation(doc.data().destination),
+                updatedAt: doc.data().updatedAt
+            }));
             setCarStatus(carStatusDocs);
         });
         return function cleanUp() {

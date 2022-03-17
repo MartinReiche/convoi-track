@@ -8,39 +8,28 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import {Link} from "react-router-dom";
-import {Timestamp} from 'firebase/firestore';
 import Destination from "../map/components/destination";
 import Map, {GoogleMapsApi} from "../map";
 import { Convoi } from '../../utils/convois';
+import toDateString from "../../utils/toDateString";
 
 const DEFAULT_ZOOM = 11;
-
-const toDateString = (date: Timestamp) => {
-    return date.toDate().toLocaleDateString(undefined, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-    })
-}
 
 function ConvoiCard({convoi}: { convoi: Convoi }) {
     // const [address, setAddress] = React.useState<string>();
     const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
 
     React.useEffect(() => {
-        if (googleMapsApi) {
+        if (googleMapsApi && convoi.destination.coordinates) {
            googleMapsApi.map.setCenter({
-               lat: convoi.destination.location.latitude,
-               lng: convoi.destination.location.longitude
+               lat: convoi.destination.coordinates.latitude,
+               lng: convoi.destination.coordinates.longitude
            })
         }
-    }, [googleMapsApi, convoi.destination.location])
+    }, [googleMapsApi, convoi.destination.coordinates])
 
     return (
-        <Card>
+        <Card sx={{ backgroundColor: (theme) => theme.palette.background.default }}>
             <Grid container>
                 <Grid item xs={12} sm={7} flexDirection="column" justifyContent="space-between" sx={{display: 'flex'}}>
                     <CardContent>
@@ -68,7 +57,7 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                                 Arrival:
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="span">
-                                {` ${toDateString(convoi.destination.date)}`}
+                                {`${(convoi.destination.dateToString())}`}
                             </Typography>
                         </Box>
                     </CardContent>
@@ -85,7 +74,9 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                             defaultZoom={DEFAULT_ZOOM}
                             onApiLoaded={setGoogleMapsApi}
                         >
-                            <Destination lat={convoi.destination.location.latitude} lng={convoi.destination.location.longitude}/>
+                            {convoi.destination.coordinates && (
+                                <Destination lat={convoi.destination.coordinates.latitude} lng={convoi.destination.coordinates.longitude}/>
+                            )}
                         </Map>
                     </CardMedia>
                 </Grid>

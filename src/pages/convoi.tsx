@@ -2,7 +2,12 @@ import * as React from "react";
 import GoogleMapReact from 'google-map-react';
 import Map, {GoogleMapsApi, MapDrawer, Destination, MapMenu} from "../components/map";
 import Loading from "../components/loading";
-import useConvois from "../utils/convois/useConvois";
+import {useConvoi} from "../utils/convois";
+import {useConvoiCars} from "../utils/cars";
+import Cars from '../components/cars';
+import {Car} from '../utils/cars';
+import {MapLocation} from "../components/map/models";
+import AddCar from "../components/cars/addCar";
 
 type MenuState = {
     lat?: number,
@@ -10,59 +15,93 @@ type MenuState = {
     open: boolean
 }
 
-type Place = google.maps.places.PlaceResult | google.maps.GeocoderResult | null;
-
 const ConvoiPage = () => {
+    // UI state
     const [loading, setLoading] = React.useState(true);
     const [drawerOpen, setDrawerOpen] = React.useState(true);
-    const [destination, setDestination] = React.useState<Place>();
+    const [addCarOpen, setAddCarOpen] = React.useState(false);
     const [mapMenuState, setMapMenuState] = React.useState<MenuState>({open: false});
+    // locations
+    const [destination, setDestination] = React.useState<MapLocation|null>();
+    const [convoiDestination, setConvoiDestination] = React.useState<MapLocation>();
+
+    // API
     const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
-    const convoi = useConvois();
+    // data listeners
+    const convoi = useConvoi();
+    const cars = useConvoiCars();
 
     React.useEffect(() => {
-        if (convoi) setLoading(false);
-    },[convoi]);
+            if (convoi && cars && googleMapsApi) {
+                setLoading(false);
+                setConvoiDestination(convoi.destination);
+                if (convoi.destination.coordinates) {
+                    googleMapsApi.map.setCenter({
+                        lat: convoi.destination.coordinates?.latitude,
+                        lng: convoi.destination.coordinates?.longitude
+                    });
+                }
+            }
+        }, [convoi, cars, googleMapsApi]);
 
     const handleMapClicked = (e: GoogleMapReact.ClickEventValue) => {
-        setMapMenuState(prev => ({lat: e.lat, lng: e.lng, open: !prev.open}))
+        setMapMenuState({lat: e.lat, lng: e.lng, open: true});
     }
 
     const toggleMenuOpen = () => {
         setDrawerOpen(prev => !prev);
     }
 
-    const handleDestinationChange = (place: Place) => {
-        if (place && place.geometry?.location && googleMapsApi) {
+    const handleDestinationChange = (place: MapLocation|null) => {
+        if (place && place.coordinates && googleMapsApi) {
             setDestination(place);
-            if (mapMenuState.open) setMapMenuState({open: false});
-            googleMapsApi.map.setCenter(place.geometry.location);
+            setMapMenuState({open: false});
+            googleMapsApi.map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
 
         } else if (googleMapsApi) {
             setDestination(null);
         }
     }
 
+    const handleCarSelect = (car: Car) => {
+        console.log("selected Car");
+        console.log(car);
+    }
+
+    const handleCarFocus = (car: Car) => {
+        console.log("Focus Car on MAp");
+        console.log(car);
+    }
+
     return (
         <React.Fragment>
             <Loading open={loading}/>
             <MapDrawer open={drawerOpen} onToggleMenuOpen={toggleMenuOpen}>
-                {/*<AddConvoi*/}
-                {/*    destination={destination}*/}
-                {/*    googleMapsApi={googleMapsApi}*/}
-                {/*    onDestinationChange={handleDestinationChange}*/}
-                {/*/>*/}
-                <div>New Menu</div>
+                {addCarOpen ? (
+                    <AddCar
+                        destination={convoiDestination}
+                        googleMapsApi={googleMapsApi}
+                        onDestinationChange={handleDestinationChange}
+                        onToggleOpen={() => setAddCarOpen(prev => !prev)}
+                    />
+                ) : (
+                    <Cars
+                        cars={cars}
+                        onCarSelect={handleCarSelect}
+                        onCarFocus={handleCarFocus}
+                        onAddCarToggle={() => setAddCarOpen(prev => !prev)}
+                    />
+                )}
             </MapDrawer>
             <Map
                 onApiLoaded={setGoogleMapsApi}
                 onMapClicked={handleMapClicked}
                 centerLocationOnLoad={true}
             >
-                {!!destination && (
+                {!!destination?.coordinates && (
                     <Destination
-                        lat={destination.geometry?.location?.lat()}
-                        lng={destination.geometry?.location?.lng()}
+                        lat={destination.coordinates.latitude}
+                        lng={destination.coordinates.longitude}
                     />
                 )}
                 {mapMenuState.open && (

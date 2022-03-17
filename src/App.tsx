@@ -12,6 +12,7 @@ import DateAdapter from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdminDashboard from "./pages/adminDashboard";
 import Convoi from "./pages/convoi";
+import MapProviderTest from "./pages/mapProviderTest";
 
 function App() {
     return (
@@ -36,6 +37,13 @@ function App() {
                                         <Login/>
                                     </RequireUnauth>
                                 }
+                            />
+                            <Route path="/test"
+                                   element={
+                                       <RequireAuth roles={['project-admin', 'admin', 'orga', 'driver']}>
+                                               <MapProviderTest />
+                                       </RequireAuth>
+                                   }
                             />
                             <Route path="/convoys/new"
                                    element={

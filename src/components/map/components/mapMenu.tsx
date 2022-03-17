@@ -7,27 +7,27 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import MarkerIcon from '@mui/icons-material/Room';
+import MarkerIcon from '@mui/icons-material/AddLocation';
 import CloseIcon from '@mui/icons-material/Close';
 import {GoogleMapsApi} from '../';
+import {MapLocation} from "../models";
 
 type Props = {
     lat: number | undefined,
     lng: number | undefined,
     googleMapsApi: GoogleMapsApi | undefined,
-    onSetDestination: (place: google.maps.GeocoderResult) => void,
+    onSetDestination: (place: MapLocation) => void,
     onClose: () => void
 }
 
 export function MapMenu({googleMapsApi, lat, lng, onSetDestination, onClose}: Props) {
-    const [selectedLocation, setSelectedLocation] = React.useState<google.maps.GeocoderResult>();
+    const [selectedLocation, setSelectedLocation] = React.useState<MapLocation>();
 
     React.useEffect(() => {
         if (googleMapsApi && lat && lng) {
-            const location = {lat,lng};
             const Geocoder = new googleMapsApi.maps.Geocoder();
-            Geocoder.geocode({location}).then(result => {
-                setSelectedLocation(result.results[0])
+            Geocoder.geocode({location: {lat, lng}}).then(result => {
+                setSelectedLocation(new MapLocation({ coordinates: result.results[0] }))
             });
         }
     }, [googleMapsApi, lat, lng])
@@ -39,7 +39,7 @@ export function MapMenu({googleMapsApi, lat, lng, onSetDestination, onClose}: Pr
                 sx={{fontSize: 40, color: (theme) => theme.palette.primary.main, transform: 'translate(-50%,-100%)'}}/>
             <Paper sx={{maxWidth: '100%', transform: 'translate(0,-40px)'}}>
                 <Box sx={{p: 2}}>
-                    <Typography>{selectedLocation.formatted_address}</Typography>
+                    <Typography>{selectedLocation.address}</Typography>
                 </Box>
                 <MenuList>
                     <Divider sx={{mb: 1}}/>
