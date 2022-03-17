@@ -9,13 +9,13 @@ import {useAuth} from "../auth/authProvider";
 import Box from '@mui/material/Box';
 import {PlaceSearch} from "../map";
 import Loading from '../loading';
-import {GoogleMapsApi} from "../map";
 import Chip from '@mui/material/Chip';
 import Typography from "@mui/material/Typography";
 import {GeoPoint} from 'firebase/firestore';
 import {useNavigate} from "react-router-dom";
 import AlertBar, {Alert} from "../alert";
 import {MapLocation} from "../map/models";
+import {useMap} from "../map";
 
 const validationSchema = yup.object({
     name: yup.string().required('Name is required'),
@@ -26,17 +26,17 @@ const validationSchema = yup.object({
 
 type AddCarProps = {
     destination: MapLocation | undefined
-    googleMapsApi: GoogleMapsApi | undefined
     onDestinationChange: (place: MapLocation | null) => void
     onToggleOpen: () => void
 }
 
-export default function AddCar({destination, googleMapsApi, onDestinationChange, onToggleOpen}: AddCarProps) {
+export default function AddCar({destination, onDestinationChange, onToggleOpen}: AddCarProps) {
     const [loading, setLoading] = React.useState(false);
     const [alert, setAlert] = React.useState<Alert>({severity: 'info', message: null});
     const [selectedDestination, setSelectedDestination] = React.useState<MapLocation|null>(null);
     const {user} = useAuth();
     const navigate = useNavigate();
+    const {map} = useMap();
 
     React.useEffect(() => {
         if (destination) setSelectedDestination(destination);
@@ -90,8 +90,8 @@ export default function AddCar({destination, googleMapsApi, onDestinationChange,
     }
 
     const handleClick = () => {
-        if (googleMapsApi && selectedDestination?.coordinates) {
-            googleMapsApi.map.setCenter({
+        if (map && selectedDestination?.coordinates) {
+            map.setCenter({
                 lat: selectedDestination.coordinates.latitude,
                 lng: selectedDestination.coordinates.longitude
             })
@@ -143,7 +143,6 @@ export default function AddCar({destination, googleMapsApi, onDestinationChange,
                     <PlaceSearch
                         id="address"
                         label="Destination"
-                        googleMapsApi={googleMapsApi}
                         error={formik.touched.address && Boolean(formik.errors.address)}
                         errorMessage={formik.touched.address && formik.errors.address && formik.errors.address}
                         onChange={handleDestinationChange}

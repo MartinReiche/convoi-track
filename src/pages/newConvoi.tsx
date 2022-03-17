@@ -1,7 +1,6 @@
 import * as React from 'react';
-import GoogleMapReact from 'google-map-react';
 import AddConvoi from "../components/convois/addConvoi";
-import Map, {GoogleMapsApi, MapDrawer, Destination, MapMenu} from "../components/map";
+import Map, {MapProvider, MapDrawer, Destination, MapMenu, useMap} from "../components/map";
 import {MapLocation} from "../components/map/models";
 
 type MenuState = {
@@ -15,23 +14,23 @@ const NewConvoi = () => {
     const [drawerOpen, setDrawerOpen] = React.useState(true);
     const [destination, setDestination] = React.useState<MapLocation|null>();
     const [mapMenuState, setMapMenuState] = React.useState<MenuState>({open: false});
-    const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
+    const {map, mapClickEvent} = useMap();
 
-    const handleMapClicked = (e: GoogleMapReact.ClickEventValue) => {
-        setMapMenuState(prev => ({lat: e.lat, lng: e.lng, open: !prev.open}))
-    }
+    React.useEffect(() => {
+        if (mapClickEvent) setMapMenuState({lat: mapClickEvent.lat, lng: mapClickEvent.lng, open: true});
+    },[mapClickEvent])
 
     const toggleMenuOpen = () => {
         setDrawerOpen(prev => !prev);
     }
 
     const handleDestinationChange = (place: MapLocation|null) => {
-        if (place && place.coordinates && googleMapsApi) {
+        if (place && place.coordinates && map) {
             setDestination(place);
             if (mapMenuState.open) setMapMenuState({open: false});
-            googleMapsApi.map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
+            map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
 
-        } else if (googleMapsApi) {
+        } else if (map) {
             setDestination(null);
         }
     }
@@ -41,13 +40,10 @@ const NewConvoi = () => {
             <MapDrawer open={drawerOpen} onToggleMenuOpen={toggleMenuOpen}>
                 <AddConvoi
                     destination={destination}
-                    googleMapsApi={googleMapsApi}
                     onDestinationChange={handleDestinationChange}
                 />
             </MapDrawer>
             <Map
-                onApiLoaded={setGoogleMapsApi}
-                onMapClicked={handleMapClicked}
                 centerLocationOnLoad={true}
             >
                 {!!destination?.coordinates && (
@@ -60,7 +56,6 @@ const NewConvoi = () => {
                     <MapMenu
                         lat={mapMenuState.lat}
                         lng={mapMenuState.lng}
-                        googleMapsApi={googleMapsApi}
                         onSetDestination={handleDestinationChange}
                         onClose={() => setMapMenuState({ open: false })}
                     />
@@ -70,4 +65,10 @@ const NewConvoi = () => {
     );
 }
 
-export default NewConvoi;
+const NewConvoiWithProvider = () => (
+    <MapProvider>
+        <NewConvoi />
+    </MapProvider>
+)
+
+export default NewConvoiWithProvider;

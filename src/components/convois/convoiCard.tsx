@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import {Link} from "react-router-dom";
 import Destination from "../map/components/destination";
-import Map, {GoogleMapsApi} from "../map";
+import Map, {MapProvider,useMap} from "../map";
 import { Convoi } from '../../utils/convois';
 import toDateString from "../../utils/toDateString";
 
@@ -17,16 +17,15 @@ const DEFAULT_ZOOM = 11;
 
 function ConvoiCard({convoi}: { convoi: Convoi }) {
     // const [address, setAddress] = React.useState<string>();
-    const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
-
+    const {map} = useMap();
     React.useEffect(() => {
-        if (googleMapsApi && convoi.destination.coordinates) {
-           googleMapsApi.map.setCenter({
+        if (map && convoi.destination.coordinates) {
+           map.setCenter({
                lat: convoi.destination.coordinates.latitude,
                lng: convoi.destination.coordinates.longitude
            })
         }
-    }, [googleMapsApi, convoi.destination.coordinates])
+    }, [map, convoi.destination.coordinates])
 
     return (
         <Card sx={{ backgroundColor: (theme) => theme.palette.background.default }}>
@@ -72,7 +71,6 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
                     <CardMedia sx={{height: '100%', minHeight: 200}}>
                         <Map
                             defaultZoom={DEFAULT_ZOOM}
-                            onApiLoaded={setGoogleMapsApi}
                         >
                             {convoi.destination.coordinates && (
                                 <Destination lat={convoi.destination.coordinates.latitude} lng={convoi.destination.coordinates.longitude}/>
@@ -85,4 +83,10 @@ function ConvoiCard({convoi}: { convoi: Convoi }) {
     );
 }
 
-export default ConvoiCard;
+const ConvoiCardWithContext = ({convoi}: { convoi: Convoi }) => (
+    <MapProvider>
+        <ConvoiCard convoi={convoi} />
+    </MapProvider>
+)
+
+export default ConvoiCardWithContext;

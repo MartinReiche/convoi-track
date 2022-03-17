@@ -2,13 +2,12 @@ import * as React from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from "@mui/material/TextField";
 import debounce from 'lodash.debounce'
-import {GoogleMapsApi} from "../index";
 import {MapLocation} from "../models";
+import {useMap} from "../mapProvider";
 
 type PlaceSearchProps = {
     id: string,
     label: string,
-    googleMapsApi: GoogleMapsApi | undefined
     error: boolean | undefined,
     errorMessage: string | false | undefined,
     onChange: (place: MapLocation | null) => void,
@@ -20,18 +19,19 @@ type SearchResult = {
 }
 
 
-export function PlaceSearch({id, label, googleMapsApi, error, errorMessage, onChange}: PlaceSearchProps) {
+export function PlaceSearch({id, label, error, errorMessage, onChange}: PlaceSearchProps) {
     const [AutoCompleteService, setAutoCompleteService] = React.useState<google.maps.places.AutocompleteService>();
     const [PlaceService, setPlaceService] = React.useState<google.maps.places.PlacesService>();
     const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
+    const {map,maps} = useMap();
 
     React.useEffect(() => {
-        if (googleMapsApi) {
+        if (map && maps) {
             // intialize AutoCompleteService & PlaceService
-            setAutoCompleteService(new googleMapsApi.maps.places.AutocompleteService());
-            setPlaceService(new googleMapsApi.maps.places.PlacesService(googleMapsApi.map));
+            setAutoCompleteService(new maps.places.AutocompleteService());
+            setPlaceService(new maps.places.PlacesService(map));
         }
-    }, [googleMapsApi])
+    }, [map, maps])
 
     // Debounced places Prediction
     const getPlacePredictions = React.useMemo(

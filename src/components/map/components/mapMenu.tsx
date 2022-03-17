@@ -9,28 +9,28 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import MarkerIcon from '@mui/icons-material/AddLocation';
 import CloseIcon from '@mui/icons-material/Close';
-import {GoogleMapsApi} from '../';
 import {MapLocation} from "../models";
+import {useMap} from "../mapProvider";
 
 type Props = {
     lat: number | undefined,
     lng: number | undefined,
-    googleMapsApi: GoogleMapsApi | undefined,
     onSetDestination: (place: MapLocation) => void,
     onClose: () => void
 }
 
-export function MapMenu({googleMapsApi, lat, lng, onSetDestination, onClose}: Props) {
+export function MapMenu({lat, lng, onSetDestination, onClose}: Props) {
     const [selectedLocation, setSelectedLocation] = React.useState<MapLocation>();
+    const {maps} = useMap();
 
     React.useEffect(() => {
-        if (googleMapsApi && lat && lng) {
-            const Geocoder = new googleMapsApi.maps.Geocoder();
+        if (maps && lat && lng) {
+            const Geocoder = new maps.Geocoder();
             Geocoder.geocode({location: {lat, lng}}).then(result => {
                 setSelectedLocation(new MapLocation({ coordinates: result.results[0] }))
             });
         }
-    }, [googleMapsApi, lat, lng])
+    }, [maps, lat, lng])
 
     if (!selectedLocation) return null
     return (

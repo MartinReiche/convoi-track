@@ -1,6 +1,5 @@
 import * as React from "react";
-import GoogleMapReact from 'google-map-react';
-import Map, {GoogleMapsApi, MapDrawer, Destination, MapMenu} from "../components/map";
+import Map, {useMap, MapDrawer, Destination, MapMenu, MapProvider} from "../components/map";
 import Loading from "../components/loading";
 import {useConvoi} from "../utils/convois";
 import {useConvoiCars} from "../utils/cars";
@@ -26,39 +25,39 @@ const ConvoiPage = () => {
     const [convoiDestination, setConvoiDestination] = React.useState<MapLocation>();
 
     // API
-    const [googleMapsApi, setGoogleMapsApi] = React.useState<GoogleMapsApi>();
+    const {map, mapClickEvent} = useMap();
     // data listeners
     const convoi = useConvoi();
     const cars = useConvoiCars();
 
     React.useEffect(() => {
-            if (convoi && cars && googleMapsApi) {
+            if (convoi && cars && map) {
                 setLoading(false);
                 setConvoiDestination(convoi.destination);
                 if (convoi.destination.coordinates) {
-                    googleMapsApi.map.setCenter({
+                    map.setCenter({
                         lat: convoi.destination.coordinates?.latitude,
                         lng: convoi.destination.coordinates?.longitude
                     });
                 }
             }
-        }, [convoi, cars, googleMapsApi]);
+        }, [convoi, cars, map]);
 
-    const handleMapClicked = (e: GoogleMapReact.ClickEventValue) => {
-        setMapMenuState({lat: e.lat, lng: e.lng, open: true});
-    }
+    React.useEffect(() => {
+        if (mapClickEvent) setMapMenuState({lat: mapClickEvent.lat, lng: mapClickEvent.lng, open: true});
+    },[mapClickEvent])
 
     const toggleMenuOpen = () => {
         setDrawerOpen(prev => !prev);
     }
 
     const handleDestinationChange = (place: MapLocation|null) => {
-        if (place && place.coordinates && googleMapsApi) {
+        if (place && place.coordinates && map) {
             setDestination(place);
             setMapMenuState({open: false});
-            googleMapsApi.map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
+            map.setCenter({lat: place.coordinates.latitude, lng: place.coordinates.longitude});
 
-        } else if (googleMapsApi) {
+        } else {
             setDestination(null);
         }
     }
@@ -80,7 +79,6 @@ const ConvoiPage = () => {
                 {addCarOpen ? (
                     <AddCar
                         destination={convoiDestination}
-                        googleMapsApi={googleMapsApi}
                         onDestinationChange={handleDestinationChange}
                         onToggleOpen={() => setAddCarOpen(prev => !prev)}
                     />
@@ -94,8 +92,6 @@ const ConvoiPage = () => {
                 )}
             </MapDrawer>
             <Map
-                onApiLoaded={setGoogleMapsApi}
-                onMapClicked={handleMapClicked}
                 centerLocationOnLoad={true}
             >
                 {!!destination?.coordinates && (
@@ -108,7 +104,6 @@ const ConvoiPage = () => {
                     <MapMenu
                         lat={mapMenuState.lat}
                         lng={mapMenuState.lng}
-                        googleMapsApi={googleMapsApi}
                         onSetDestination={handleDestinationChange}
                         onClose={() => setMapMenuState({open: false})}
                     />
@@ -118,4 +113,10 @@ const ConvoiPage = () => {
     );
 }
 
-export default ConvoiPage;
+const ConvoiPageWithContext = () => (
+    <MapProvider>
+        <ConvoiPage />
+    </MapProvider>
+)
+
+export default ConvoiPageWithContext;
